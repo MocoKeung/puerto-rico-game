@@ -1,0 +1,26 @@
+# Fly.io configuration for Puerto Rico Game Backend
+app = "puerto-rico-backend"
+primary_region = "sin"  # Singapore region (closest to Australia)
+
+[build]
+dockerfile = "Dockerfile"
+
+[env]
+NODE_ENV = "production"
+PORT = "3001"
+
+[http_service]
+internal_port = 3001
+force_https = true
+auto_stop_machines = false
+auto_start_machines = true
+min_machines_running = 1
+
+[[vm]]
+cpu_kind = "shared"
+cpus = 1
+memory_mb = 512
+
+[mounts]
+source = "data"
+destination = "/app/data"
