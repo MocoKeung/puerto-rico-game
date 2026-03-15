@@ -5,12 +5,12 @@
 -- ----------------------
 -- profiles
 -- ----------------------
--- Any authenticated user can read profiles (for lobby/game display)
+DROP POLICY IF EXISTS "profiles: authenticated read" ON public.profiles;
 CREATE POLICY "profiles: authenticated read"
   ON public.profiles FOR SELECT
   USING (auth.role() = 'authenticated');
 
--- Users can only update their own profile
+DROP POLICY IF EXISTS "profiles: self update" ON public.profiles;
 CREATE POLICY "profiles: self update"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id)
@@ -21,13 +21,12 @@ CREATE POLICY "profiles: self update"
 -- ----------------------
 -- games
 -- ----------------------
--- Any authenticated user can read games (for lobby listing)
+DROP POLICY IF EXISTS "games: authenticated read" ON public.games;
 CREATE POLICY "games: authenticated read"
   ON public.games FOR SELECT
   USING (auth.role() = 'authenticated');
 
--- Only the host can update game metadata (status, etc.)
--- Edge Functions use service_role which bypasses RLS
+DROP POLICY IF EXISTS "games: host update" ON public.games;
 CREATE POLICY "games: host update"
   ON public.games FOR UPDATE
   USING (auth.uid() = host_id)
@@ -36,7 +35,7 @@ CREATE POLICY "games: host update"
 -- ----------------------
 -- game_players
 -- ----------------------
--- Players can read all players in games they are participating in
+DROP POLICY IF EXISTS "game_players: participant read" ON public.game_players;
 CREATE POLICY "game_players: participant read"
   ON public.game_players FOR SELECT
   USING (
@@ -47,7 +46,7 @@ CREATE POLICY "game_players: participant read"
     )
   );
 
--- Players can update their own player record (e.g., is_connected)
+DROP POLICY IF EXISTS "game_players: self update" ON public.game_players;
 CREATE POLICY "game_players: self update"
   ON public.game_players FOR UPDATE
   USING (user_id = auth.uid())
@@ -56,7 +55,7 @@ CREATE POLICY "game_players: self update"
 -- ----------------------
 -- game_states
 -- ----------------------
--- Players in the game can subscribe to and read the game state
+DROP POLICY IF EXISTS "game_states: participant read" ON public.game_states;
 CREATE POLICY "game_states: participant read"
   ON public.game_states FOR SELECT
   USING (
@@ -70,7 +69,7 @@ CREATE POLICY "game_states: participant read"
 -- ----------------------
 -- game_actions
 -- ----------------------
--- Players in the game can read the action log
+DROP POLICY IF EXISTS "game_actions: participant read" ON public.game_actions;
 CREATE POLICY "game_actions: participant read"
   ON public.game_actions FOR SELECT
   USING (
@@ -84,8 +83,19 @@ CREATE POLICY "game_actions: participant read"
 -- ============================================================
 -- Enable Supabase Realtime for live subscriptions
 -- ============================================================
--- These tables need to be in the realtime publication
-ALTER PUBLICATION supabase_realtime ADD TABLE public.game_states;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.game_players;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.game_actions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.games;
+DO $$
+DECLARE
+  t TEXT;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['game_states', 'game_players', 'game_actions', 'games'] LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_publication_tables
+      WHERE pubname = 'supabase_realtime'
+        AND schemaname = 'public'
+        AND tablename = t
+    ) THEN
+      EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I', t);
+    END IF;
+  END LOOP;
+END;
+$$;
