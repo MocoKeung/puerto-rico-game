@@ -6,17 +6,12 @@ import LobbyPage from './pages/LobbyPage';
 import GamePage from './pages/GamePage';
 import LoadingScreen from './components/LoadingScreen';
 
+// Auth disabled for testing — remove these bypasses when re-enabling login
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  if (loading) return <LoadingScreen />;
-  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  if (loading) return <LoadingScreen />;
-  if (user) return <Navigate to="/lobby" replace />;
   return <>{children}</>;
 }
 
