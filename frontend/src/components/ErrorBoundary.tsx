@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
               The game encountered an unexpected error. Don't worry, your progress is safe!
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <div className="bg-red-50 rounded-lg p-4 mb-6 text-left overflow-auto max-h-48">
                 <p className="text-red-800 font-mono text-sm">
                   {this.state.error.toString()}

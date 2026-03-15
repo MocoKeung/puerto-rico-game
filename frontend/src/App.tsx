@@ -1,23 +1,67 @@
-import Board from './components/Board';
-import useGameStore from './store/gameStore';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import LobbyPage from './pages/LobbyPage';
+import GamePage from './pages/GamePage';
+import LoadingScreen from './components/LoadingScreen';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (user) return <Navigate to="/lobby" replace />;
+  return <>{children}</>;
+}
 
 export default function App() {
-  const { players, currentPlayerIndex } = useGameStore();
-
   return (
-    <div className="min-h-screen bg-amber-50 py-8 px-4">
-      <header className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-amber-800">Puerto Rico</h1>
-        <p className="text-lg text-amber-600">Current Player: {players[currentPlayerIndex].name}</p>
-      </header>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/lobby" replace />} />
 
-      <main>
-        <Board />
-      </main>
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          }
+        />
 
-      <footer className="mt-8 text-center text-amber-700">
-        <p>Puerto Rico Game © {new Date().getFullYear()}</p>
-      </footer>
-    </div>
+        <Route
+          path="/lobby"
+          element={
+            <ProtectedRoute>
+              <LobbyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/:gameId"
+          element={
+            <ProtectedRoute>
+              <GamePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/lobby" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

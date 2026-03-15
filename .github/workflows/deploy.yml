@@ -1,4 +1,4 @@
-name: Deploy Puerto Rico Game - Hybrid (Fly.io + Cloudflare)
+name: Deploy Puerto Rico Game (Cloudflare Pages + Supabase)
 
 on:
   push:
@@ -18,22 +18,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      
+
       - name: Install Dependencies
         working-directory: ./frontend
         run: npm ci
-      
+
       - name: Build
         working-directory: ./frontend
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
-      
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -45,7 +48,7 @@ jobs:
   # Deploy Frontend to Cloudflare Pages
   # ============================================
   deploy-frontend:
-    name: Deploy Frontend to Cloudflare Pages
+    name: Deploy to Cloudflare Pages
     needs: build-frontend
     runs-on: ubuntu-latest
     steps:
@@ -54,7 +57,7 @@ jobs:
         with:
           name: frontend-build
           path: dist
-      
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
@@ -65,37 +68,64 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # ============================================
-  # Deploy Backend to Fly.io
+  # Apply Supabase DB Migrations
   # ============================================
-  deploy-backend:
-    name: Deploy Backend to Fly.io
+  supabase-migrate:
+    name: Apply Supabase Migrations
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Setup Fly.io CLI
-        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
         with:
           version: latest
-      
-      - name: Deploy to Fly.io
-        working-directory: ./backend
+
+      - name: Run DB Migrations
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        run: flyctl deploy --remote-only
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase link --project-ref rqpueewuuyjjnfglxpui
+          supabase db push
 
   # ============================================
-  # Notify on Success
+  # Deploy Supabase Edge Functions
+  # ============================================
+  deploy-functions:
+    name: Deploy Edge Functions
+    needs: supabase-migrate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy Edge Functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase link --project-ref rqpueewuuyjjnfglxpui
+          supabase functions deploy create-room
+          supabase functions deploy join-room
+          supabase functions deploy start-game
+          supabase functions deploy game-action
+
+  # ============================================
+  # Notify on Completion
   # ============================================
   notify:
-    name: Notify Deployment Status
-    needs: [deploy-frontend, deploy-backend]
+    name: Deployment Summary
+    needs: [deploy-frontend, deploy-functions]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Deployment Summary
+      - name: Summary
         run: |
-          echo "🚀 Puerto Rico Game Deployment Complete!"
+          echo "Puerto Rico Game Deployment Complete!"
           echo "Frontend: https://puerto-rico-game.pages.dev"
-          echo "Backend: https://puerto-rico-backend.fly.dev"
+          echo "Supabase:  https://rqpueewuuyjjnfglxpui.supabase.co"

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 export type ResourceType = 'corn' | 'indigo' | 'sugar' | 'tobacco' | 'coffee';
-export type RoleType = 'settler' | 'builder' | 'mayor' | 'trader' | 'captain';
+export type RoleType = 'settler' | 'builder' | 'mayor' | 'trader' | 'captain' | 'prospector';
 
 export interface Plantation {
   type: ResourceType | 'quarry';
@@ -83,6 +83,7 @@ export interface GameActions {
   produceResources: () => void;
   distributeColonists: () => void;
   addLog: (message: string) => void;
+  endRolePhase: () => void;
 }
 
 const useGameStore = create<GameState & GameActions>((set, get) => ({
@@ -192,7 +193,11 @@ const useGameStore = create<GameState & GameActions>((set, get) => ({
     set((state) => ({
       gameLog: [...state.gameLog, { message, timestamp: Date.now() }]
     }));
-  }
+  },
+
+  endRolePhase: () => {
+    set({ gamePhase: 'action', selectedRole: null });
+  },
 }));
 
 export default useGameStore;
