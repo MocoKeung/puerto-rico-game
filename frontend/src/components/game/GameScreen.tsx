@@ -24,34 +24,21 @@ export default function GameScreen() {
     gameOverScores,
   } = state;
 
-  // Redirect if game not started
   useEffect(() => {
-    if (!started) {
-      navigate('/local');
-    }
+    if (!started) navigate('/local');
   }, [started, navigate]);
 
-  // AI auto-play loop
   const runAI = useCallback(() => {
     const currentState = useGameEngine.getState();
     if (currentState.phase === 'game_over') return;
     if (currentState.waitingForHuman) return;
-
     const seat = currentState.activePlayerSeat;
     const player = currentState.players[seat];
     if (player?.isHuman) return;
-
     executeAITurn(currentState, seat, {
-      selectRole,
-      settlerTakePlantation,
-      builderBuyBuilding,
-      builderPass,
-      captainShipGoods,
-      captainUseWharf,
-      captainPass,
-      traderSellGood,
-      traderPass,
-      craftsmanBonusGood,
+      selectRole, settlerTakePlantation, builderBuyBuilding, builderPass,
+      captainShipGoods, captainUseWharf, captainPass,
+      traderSellGood, traderPass, craftsmanBonusGood,
     });
   }, [selectRole, settlerTakePlantation, builderBuyBuilding, builderPass,
       captainShipGoods, captainUseWharf, captainPass, traderSellGood, traderPass, craftsmanBonusGood]);
@@ -59,20 +46,15 @@ export default function GameScreen() {
   useEffect(() => {
     if (phase === 'game_over') return;
     if (waitingForHuman) return;
-
-    // Schedule AI turn
     if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
     aiTimerRef.current = setTimeout(runAI, AI_TURN_DELAY);
-
-    return () => {
-      if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
-    };
+    return () => { if (aiTimerRef.current) clearTimeout(aiTimerRef.current); };
   }, [phase, activePlayerSeat, waitingForHuman, runAI]);
 
   if (!started) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-950 via-sky-900 to-cyan-900 pb-20">
+    <div className="min-h-screen bg-ocean-pattern pb-20 flex flex-col">
       {/* Header */}
       <GameHeader />
 
@@ -80,8 +62,9 @@ export default function GameScreen() {
       <AIOpponentBar />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="flex-1 max-w-7xl mx-auto w-full px-3 py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+
           {/* Left: Your Island */}
           <div className="lg:col-span-5">
             <PlayerIsland />
@@ -89,18 +72,26 @@ export default function GameScreen() {
 
           {/* Right: Action Panel */}
           <div className="lg:col-span-7">
-            <ActionPanel />
+            {/* Parchment container */}
+            <div className="bg-parchment rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden border border-[#c9870c]/30">
+              {/* Top accent bar */}
+              <div className="h-1 bg-gradient-to-r from-transparent via-[#c9870c] to-transparent" />
+              <div className="p-5">
+                <ActionPanel />
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
 
-      {/* Resource Bar (fixed bottom) */}
+      {/* Resource Bar */}
       <ResourceBar onToggleLog={() => setLogOpen(!logOpen)} />
 
-      {/* Game Log Drawer */}
+      {/* Log Drawer */}
       <GameLog isOpen={logOpen} onClose={() => setLogOpen(false)} />
 
-      {/* Game Over Overlay */}
+      {/* Game Over */}
       {gameOverScores && <GameOverScreen />}
     </div>
   );
