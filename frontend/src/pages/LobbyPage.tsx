@@ -97,6 +97,19 @@ export default function LobbyPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Local test shortcut */}
+        <div className="mb-6 p-4 bg-amber-100 border border-amber-300 rounded-xl flex items-center justify-between">
+          <div>
+            <span className="font-semibold text-amber-900">Test locally (no account needed)</span>
+            <p className="text-sm text-amber-700">Play a 2-player game on this device to explore the UI</p>
+          </div>
+          <button
+            onClick={() => navigate('/local')}
+            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition-colors"
+          >
+            Local Play →
+          </button>
+        </div>
         {/* Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Create Room */}

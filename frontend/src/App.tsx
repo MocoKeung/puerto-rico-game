@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import LobbyPage from './pages/LobbyPage';
 import GamePage from './pages/GamePage';
+import LocalGamePage from './pages/LocalGamePage';
 import LoadingScreen from './components/LoadingScreen';
 
 // Auth disabled for testing — remove these bypasses when re-enabling login
@@ -54,6 +55,8 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/local" element={<LocalGamePage />} />
 
         <Route path="*" element={<Navigate to="/lobby" replace />} />
       </Routes>
