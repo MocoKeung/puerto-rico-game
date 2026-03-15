@@ -2,7 +2,7 @@ name: Deploy Puerto Rico Game (Cloudflare Pages + Supabase)
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, 'claude/**']
   workflow_dispatch:
 
 env:
