@@ -1,13 +1,12 @@
-name: Deploy Puerto Rico Game
+name: Deploy Puerto Rico Game - Hybrid (Fly.io + Cloudflare)
 
 on:
   push:
     branches: [main, master]
-  pull_request:
-    branches: [main, master]
+  workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   # ============================================
@@ -19,22 +18,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-
+      
       - name: Install Dependencies
         working-directory: ./frontend
         run: npm ci
-
+      
       - name: Build
         working-directory: ./frontend
         run: npm run build
-
+      
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -49,14 +48,13 @@ jobs:
     name: Deploy Frontend to Cloudflare Pages
     needs: build-frontend
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-build
           path: dist
-
+      
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
@@ -67,30 +65,25 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # ============================================
-  # Build & Deploy Backend (Cloudflare Workers)
+  # Deploy Backend to Fly.io
   # ============================================
   deploy-backend:
-    name: Deploy Backend to Cloudflare Workers
+    name: Deploy Backend to Fly.io
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
         with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install Wrangler
-        run: npm install -g wrangler
-
-      - name: Deploy Workers
+          version: latest
+      
+      - name: Deploy to Fly.io
         working-directory: ./backend
-        run: wrangler deploy
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only
 
   # ============================================
   # Notify on Success
@@ -105,4 +98,4 @@ jobs:
         run: |
           echo "🚀 Puerto Rico Game Deployment Complete!"
           echo "Frontend: https://puerto-rico-game.pages.dev"
-          echo "Backend: https://puerto-rico-api.your-account.workers.dev"
+          echo "Backend: https://puerto-rico-backend.fly.dev"
