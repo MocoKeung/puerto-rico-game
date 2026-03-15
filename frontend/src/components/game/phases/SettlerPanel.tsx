@@ -19,7 +19,9 @@ export default function SettlerPanel() {
     );
   }
 
-  const canTakeQuarry = isRolePicker && quarriesRemaining > 0;
+  const humanPlayer = players[0];
+  const hasConstructionHut = humanPlayer?.buildings.some(b => b.def.id === 'construction_hut' && b.colonists > 0);
+  const canTakeQuarry = (isRolePicker || hasConstructionHut) && quarriesRemaining > 0;
 
   return (
     <div>

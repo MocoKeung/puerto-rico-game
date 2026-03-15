@@ -344,18 +344,27 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
 
     // Prospector: immediate doubloon gain, no phase
     if (roleType === 'prospector') {
-      newPlayers[seat] = { ...player, doubloons: player.doubloons + 1 + role.bonusDoubloons };
-      const nextPicker = get().getNextRolePicker(seat, state.rolesSelectedThisRound + 1);
+      newPlayers[seat] = { ...player, doubloons: player.doubloons + 1 };
+      const newRolesSelected = state.rolesSelectedThisRound + 1;
       set({
         roles: newRoles,
         players: newPlayers,
-        rolesSelectedThisRound: state.rolesSelectedThisRound + 1,
-        rolePickerSeat: nextPicker.seat,
-        activePlayerSeat: nextPicker.seat,
-        waitingForHuman: nextPicker.isHuman,
+        rolesSelectedThisRound: newRolesSelected,
         lastAction: 'select_role',
       });
       get().addLog(`${player.name} selected Prospector (+1 doubloon)`, seat);
+
+      // Check if round is over
+      if (newRolesSelected >= state.playerCount) {
+        get().advanceRound();
+      } else {
+        const nextPicker = get().getNextRolePicker(seat, newRolesSelected);
+        set({
+          rolePickerSeat: nextPicker.seat,
+          activePlayerSeat: nextPicker.seat,
+          waitingForHuman: nextPicker.isHuman,
+        });
+      }
       return;
     }
 
