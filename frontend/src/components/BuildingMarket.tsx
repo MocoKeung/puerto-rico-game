@@ -1,4 +1,4 @@
-import { useGameStore, type ResourceType } from '../store/gameStore';
+import useGameStore, { type ResourceType } from '../store/gameStore';
 
 const productionIcons: Record<ResourceType, string> = {
   corn: '🌽',
@@ -9,7 +9,7 @@ const productionIcons: Record<ResourceType, string> = {
 };
 
 export default function BuildingMarket() {
-  const { availableBuildings, selectedRole, currentPlayerIndex, players, buyBuilding } = useGameStore();
+  const { buildingsAvailable, selectedRole, currentPlayerIndex, players, buyBuilding } = useGameStore();
 
   const currentPlayer = players[currentPlayerIndex];
   const canBuy = selectedRole === 'builder';
@@ -20,7 +20,7 @@ export default function BuildingMarket() {
 
   const handleBuyBuilding = (buildingId: string) => {
     if (currentPlayer && canBuy) {
-      const building = availableBuildings.find(b => b.id === buildingId);
+      const building = buildingsAvailable.find(b => b.id === buildingId);
       if (building) {
         const cost = getBuildCost(building.cost);
         if (currentPlayer.doubloons >= cost) {
@@ -46,12 +46,12 @@ export default function BuildingMarket() {
       
       <div className="p-4">
         <div className="space-y-3 max-h-72 overflow-y-auto">
-          {availableBuildings.length === 0 ? (
+          {buildingsAvailable.length === 0 ? (
             <div className="text-center py-6 text-gray-500">
               <p>No buildings available</p>
             </div>
           ) : (
-            availableBuildings.map((building) => {
+            buildingsAvailable.map((building) => {
               const cost = getBuildCost(building.cost);
               const canAfford = currentPlayer && currentPlayer.doubloons >= cost;
 

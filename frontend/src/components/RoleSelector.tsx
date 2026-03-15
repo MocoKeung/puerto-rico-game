@@ -1,4 +1,4 @@
-import { useGameStore, type RoleType } from '../store/gameStore';
+import useGameStore, { type RoleType } from '../store/gameStore';
 
 const roleDetails: Record<RoleType, {
   name: string;
@@ -35,6 +35,12 @@ const roleDetails: Record<RoleType, {
     icon: '⛵',
     description: 'Ship for VP',
     color: 'from-sky-500 to-sky-600',
+  },
+  prospector: {
+    name: 'Prospector',
+    icon: '🪙',
+    description: 'Take doubloon',
+    color: 'from-orange-500 to-orange-600',
   },
 };
 
@@ -83,7 +89,7 @@ export default function RoleSelector() {
       
       <div className="p-4">
         {/* Role Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {(roles.map((role) => {
             const details = roleDetails[role.type];
             const isSelected = role.selected;
@@ -109,7 +115,22 @@ export default function RoleSelector() {
                     {role.doubloons}
                   </div>
                 )}
-                <div className="text-3xl mb-1">{details.icon}</div>
+                
+                {/* CSS Placeholder for Role Card - used for prospector and when icon doesn't exist */}
+                <div className={`
+                  ${!details.icon || role.type === 'prospector' 
+                    ? 'prospector-placeholder w-full h-16 rounded-md flex items-center justify-center text-lg font-bold' 
+                    : 'text-3xl mb-1'
+                  }
+                  ${!details.icon || role.type === 'prospector'
+                    ? 'bg-gradient-to-r from-orange-700 to-orange-600 border border-orange-500 text-amber-100'
+                    : ''
+                  }`
+                  }
+                >
+                  {role.type === 'prospector' ? 'PROSPECTOR' : (details.icon || '?')}
+                </div>
+                
                 <div className="font-bold text-sm">{details.name}</div>
                 <div className="text-xs opacity-80 mt-1">{details.description}</div>
                 {isSelected && selector && (

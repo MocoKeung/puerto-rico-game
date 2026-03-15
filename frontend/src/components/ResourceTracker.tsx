@@ -1,4 +1,4 @@
-import { useGameStore, type ResourceType } from '../store/gameStore';
+import useGameStore, { type ResourceType } from '../store/gameStore';
 
 const resourceConfig: Record<ResourceType, { icon: string; name: string; price: number; bg: string }> = {
   corn: { icon: '🌽', name: 'Corn', price: 0, bg: 'from-yellow-400 to-yellow-500' },

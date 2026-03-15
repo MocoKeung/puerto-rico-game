@@ -3,7 +3,7 @@ import RoleSelector from './RoleSelector';
 import ResourceTracker from './ResourceTracker';
 import BuildingMarket from './BuildingMarket';
 import ShipArea from './ShipArea';
-import { useGameStore } from '../store/gameStore';
+import useGameStore from '../store/gameStore';
 
 export default function Board() {
   const { players, currentPlayerIndex, gamePhase, currentRound, governorIndex, selectedRole, gameLog } = useGameStore();

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Captain Role Icon - Ship/Sea -->
+  <defs>
+    <linearGradient id="captainBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4682B4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#191970;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="seaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#20B2AA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#008B8B;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shipGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#A0522D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8B4513;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Badge Background -->
+  <circle cx="50" cy="50" r="46" fill="url(#captainBg)" stroke="#191970" stroke-width="2"/>
+  <circle cx="50" cy="50" r="38" fill="#F0F8FF"/>
+  
+  <!-- Ship and Sea -->
+  <g transform="translate(50, 52)">
+    <!-- Waves at bottom -->
+    <path d="M -35,15 Q -25,10 -15,15 Q -5,20 5,15 Q 15,10 25,15 Q 35,20 35,25 L -35,25 Z" fill="url(#seaGrad)"/>
+    
+    <!-- Ship -->
+    <g transform="translate(0, -5)">
+      <!-- Hull -->
+      <path d="M -25,10 L -20,0 L 20,0 L 25,10 Q 0,15 -25,10" fill="url(#shipGrad)" stroke="#654321" stroke-width="1"/>
+      <!-- Mast -->
+      <rect x="-2" y="-30" width="4" height="32" fill="#8B4513"/>
+      <rect x="3" y="-25" width="2" height="20" fill="#A0522D"/>
+      <!-- Sails -->
+      <path d="M 2,-28 Q 18,-25 18,-18 Q 10,-8 2,-12" fill="#FFFAF0" stroke="#DDDDDD" stroke-width="1"/>
+      <path d="M -2,-10 Q -15,-8 -15,-2 Q -10,5 -2,2" fill="#FFFAF0" stroke="#DDDDDD" stroke-width="1"/>
+      <!-- Small flag -->
+      <polygon points="0,-32 12,-30 0,-28" fill="#DC143C"/>
+      
+      <!-- Cargo boxes on deck -->
+      <rect x="-12" y="-2" width="6" height="4" fill="#8B4513"/>
+      <rect x="-6" y="0" width="5" height="4" fill="#4169E1"/>
+      <rect x="6" y="-1" width="6" height="4" fill="#DC143C"/>
+    </g>
+    
+    <!-- Captain's hat -->
+    <g transform="translate(0, -35)">
+      <ellipse cx="0" cy="0" rx="10" ry="4" fill="#191970"/>
+      <rect x="-8" y="-6" width="16" height="6" fill="#191970"/>
+      <rect x="-8" y="-6" width="16" height="2" fill="#FFD700"/>
+      <polygon points="-2,-10 2,-10 2,-6 -2,-6" fill="#FFD700"/>
+    </g>
+  </g>
+  
+  <!-- Label -->
+  <text x="50" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#191970" font-weight="bold">CAPTAIN</text>
+</svg>

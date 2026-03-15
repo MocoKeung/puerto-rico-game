@@ -1,4 +1,4 @@
-import { useGameStore, type Player, type ResourceType } from '../store/gameStore';
+import useGameStore, { type ResourceType } from '../store/gameStore';
 
 interface PlayerPanelProps {
   player: Player;

@@ -1,4 +1,4 @@
-import { useGameStore, type ResourceType } from '../store/gameStore';
+import useGameStore, { type ResourceType } from '../store/gameStore';
 
 const resourceIcons: Record<ResourceType, string> = {
   corn: '🌽',
@@ -7,6 +7,13 @@ const resourceIcons: Record<ResourceType, string> = {
   tobacco: '🌿',
   coffee: '☕',
 };
+
+interface Ship {
+  id: string;
+  size: number;
+  cargo: ResourceType | null;
+  filled: number;
+}
 
 export default function ShipArea() {
   const { ships, colonistShip, selectedRole, currentPlayerIndex, players, shipGoods } = useGameStore();
@@ -46,7 +53,7 @@ export default function ShipArea() {
       <div className="p-4 space-y-4">
         {/* Ships */}
         <div className="space-y-3">
-          {ships.map((ship) => {
+          {ships.map((ship: Ship) => {
             const isFull = ship.filled >= ship.size;
             const percentage = (ship.filled / ship.size) * 100;
             
