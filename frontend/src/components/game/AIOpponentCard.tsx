@@ -8,9 +8,10 @@ interface AIOpponentCardProps {
   player: PlayerState;
   isActive: boolean;
   isGovernor: boolean;
+  onClick?: () => void;
 }
 
-export default function AIOpponentCard({ player, isActive, isGovernor }: AIOpponentCardProps) {
+export default function AIOpponentCard({ player, isActive, isGovernor, onClick }: AIOpponentCardProps) {
   const { t } = useTranslation();
   const totalGoods = RESOURCE_ORDER.reduce((s, r) => s + player.goods[r], 0);
   const initials = player.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
@@ -20,9 +21,10 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
       className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
         isActive
           ? 'ring-2 ring-[#f0a830] shadow-[0_0_16px_rgba(240,168,48,0.35)] scale-[1.015]'
-          : 'ring-1 ring-white/8'
-      }`}
+          : 'ring-1 ring-white/8 hover:ring-[#f0a830]/40'
+      } ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
       style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' }}
+      onClick={onClick}
     >
       {/* Name bar */}
       <div
