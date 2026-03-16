@@ -54,47 +54,47 @@ export default function GameScreen() {
   if (!started) return null;
 
   return (
-    // h-screen + flex-col creates a fixed viewport layout — no page scroll,
-    // only the main content area scrolls. This ensures header, opponent bar,
-    // and resource bar are always visible.
     <div className="h-screen flex flex-col overflow-hidden bg-ocean-pattern">
 
-      {/* ── Fixed header strip ── */}
+      {/* Header — fixed height strip */}
       <GameHeader />
 
-      {/* ── AI opponent bar ── */}
+      {/* AI opponent bar — full-width grid of cards */}
       <AIOpponentBar />
 
-      {/* ── Scrollable main content + Log drawer live here ──
-           min-h-0 is required: without it, flex children ignore overflow
-           and the inner overflow-y-auto won't scroll.                      */}
+      {/* Main content area — scrollable, relative for log drawer */}
       <div className="flex-1 relative min-h-0 overflow-hidden">
-
-        {/* Scrollable area */}
         <div className="h-full overflow-y-auto">
-          <div className="max-w-screen-xl mx-auto px-3 py-3">
+          <div className="max-w-screen-xl mx-auto px-4 py-4">
             {/*
-              md: two columns — player island (left 40%) | action panel (right 60%)
-              Below md: single column, action panel first for faster access
+              Two-column layout:
+                Left  (5/12): PlayerIsland — your personal board
+                Right (7/12): ActionPanel  — current phase / role actions
+
+              Use explicit col-span classes (more reliable than arbitrary values)
+              in an always-on 12-column grid. On small screens (<md) the panel
+              collapses to single column with action panel on top.
             */}
-            <div className="flex flex-col-reverse md:grid md:grid-cols-[2fr_3fr] gap-4 items-start">
-              {/* Left: player's island board */}
-              <PlayerIsland />
-              {/* Right: current phase action panel */}
-              <ActionPanel />
+            <div className="grid grid-cols-12 gap-4 items-start">
+              {/* Player island — left column */}
+              <div className="col-span-12 md:col-span-5 order-2 md:order-1">
+                <PlayerIsland />
+              </div>
+              {/* Action panel — right column, shown first on mobile */}
+              <div className="col-span-12 md:col-span-7 order-1 md:order-2">
+                <ActionPanel />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Log drawer — absolute so it overlays ONLY the content area,
-            never the header, opponent bar, or resource bar.               */}
+        {/* Log drawer — absolute within content area, no header/footer overlap */}
         <GameLog isOpen={logOpen} onClose={() => setLogOpen(false)} />
       </div>
 
-      {/* ── Resource bar — part of the flex column, not fixed ── */}
+      {/* Resource bar — part of the flex column, no fixed/z-index fights */}
       <ResourceBar onToggleLog={() => setLogOpen(!logOpen)} />
 
-      {/* ── Game Over overlay ── */}
       {gameOverScores && <GameOverScreen />}
     </div>
   );

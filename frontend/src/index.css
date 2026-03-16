@@ -95,4 +95,10 @@
   .animate-card-in {
     animation: card-in 0.3s ease-out forwards;
   }
+
+  /* AI thinking dots bounce */
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40%            { transform: translateY(-8px); }
+  }
 }
