@@ -14,7 +14,7 @@ export default function SinglePlayerSetup() {
   }
 
   return (
-    <div className="min-h-screen bg-ocean-pattern flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-ocean-pattern flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
 
       {/* Decorative orbs */}
       <div className="absolute top-[-80px] left-[-80px] w-[300px] h-[300px] rounded-full opacity-20 blur-3xl pointer-events-none"
@@ -36,7 +36,7 @@ export default function SinglePlayerSetup() {
         {/* Top accent */}
         <div className="h-1.5 bg-gradient-to-r from-[#2d6a4f] via-[#c9870c] to-[#1e3a5f]" />
 
-        <div className="relative z-20 px-8 py-8">
+        <div className="relative z-20 px-4 sm:px-8 py-6 sm:py-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="text-6xl mb-3 filter drop-shadow-lg">🌴</div>

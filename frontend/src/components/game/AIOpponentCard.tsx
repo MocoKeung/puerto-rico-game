@@ -15,85 +15,72 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
   return (
     <div
       className={`
-        relative flex-shrink-0 rounded-xl overflow-hidden min-w-[160px] max-w-[180px]
+        relative flex-shrink-0 flex items-center gap-2
+        rounded-xl overflow-hidden px-3 py-2
         transition-all duration-300
         ${isActive
-          ? 'ring-2 ring-[#f0a830] shadow-[0_0_16px_rgba(240,168,48,0.4)] scale-[1.04]'
+          ? 'ring-2 ring-[#f0a830] shadow-[0_0_12px_rgba(240,168,48,0.35)] scale-[1.03]'
           : 'ring-1 ring-white/10'
         }
       `}
-      style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' }}
+      style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)' }}
     >
-      {/* Active shimmer overlay */}
+      {/* Active shimmer */}
       {isActive && (
         <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />
       )}
 
-      {/* Name bar */}
+      {/* Avatar */}
       <div
-        className="relative z-10 px-3 py-2 flex items-center gap-2"
-        style={{ backgroundColor: player.color + 'cc' }}
+        className="relative z-10 w-7 h-7 rounded-full flex items-center justify-center font-cinzel font-bold text-[10px] text-white flex-shrink-0 shadow-inner"
+        style={{ backgroundColor: player.color, border: '1.5px solid rgba(255,255,255,0.3)' }}
       >
-        {/* Avatar */}
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-white font-cinzel font-bold text-[10px] flex-shrink-0 shadow-inner"
-          style={{ backgroundColor: player.color, border: '1.5px solid rgba(255,255,255,0.3)' }}
-        >
-          {initials}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1">
-            {isGovernor && <span className="text-[#f0a830] text-xs">👑</span>}
-            <span className="font-cinzel font-bold text-white text-[11px] truncate">
-              {player.name}
-            </span>
-          </div>
+        {initials}
+      </div>
+
+      {/* Info block */}
+      <div className="relative z-10 min-w-0">
+        {/* Name row */}
+        <div className="flex items-center gap-1 mb-0.5">
+          {isGovernor && <span className="text-[#f0a830] text-[10px]">👑</span>}
+          <span
+            className="font-cinzel font-bold text-white text-[11px] truncate max-w-[90px]"
+            title={player.name}
+          >
+            {player.name}
+          </span>
           {isActive && (
-            <span className="text-[9px] text-white/70 font-crimson italic">thinking…</span>
+            <span className="text-[9px] text-white/50 font-crimson italic ml-1">…</span>
           )}
+        </div>
+
+        {/* Stats row */}
+        <div className="flex items-center gap-2 text-[10px] font-cinzel">
+          <span className="text-white/80">💰{player.doubloons}</span>
+          <span className="text-white/80">⭐{player.victoryPoints}</span>
+          <span className="text-white/60">👷{player.colonists}</span>
+        </div>
+
+        {/* Board + goods row */}
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[9px] text-white/40 font-crimson">
+            🌱{player.plantations.length} · 🏛{player.buildings.length}
+          </span>
+          <div className="flex items-center gap-0.5">
+            {RESOURCE_ORDER.map(r =>
+              player.goods[r] > 0 ? (
+                <div key={r} className="flex items-center gap-0.5">
+                  <ResourceIcon type={r} size={10} />
+                  <span className="text-[9px] font-bold text-white/70">{player.goods[r]}</span>
+                </div>
+              ) : null
+            )}
+            {totalGoods === 0 && (
+              <span className="text-[9px] text-white/25 font-crimson italic">no goods</span>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Stats */}
-      <div className="relative z-10 px-3 py-2 space-y-2">
-        {/* Doubloons / VP / Colonists */}
-        <div className="flex items-center justify-between">
-          <StatPill label="💰" value={player.doubloons} />
-          <StatPill label="⭐" value={player.victoryPoints} />
-          <StatPill label="👷" value={player.colonists} />
-        </div>
-
-        {/* Board counts */}
-        <div className="flex items-center gap-2 text-[10px] text-white/50 font-crimson">
-          <span>🌱 {player.plantations.length}</span>
-          <span>🏛 {player.buildings.length}</span>
-          <span>📦 {totalGoods}</span>
-        </div>
-
-        {/* Goods mini-row */}
-        <div className="flex items-center gap-1 min-h-[14px]">
-          {RESOURCE_ORDER.map(r =>
-            player.goods[r] > 0 ? (
-              <div key={r} className="flex items-center gap-0.5">
-                <ResourceIcon type={r} size={11} />
-                <span className="text-[10px] font-bold text-white/80">{player.goods[r]}</span>
-              </div>
-            ) : null
-          )}
-          {totalGoods === 0 && (
-            <span className="text-[10px] text-white/30 font-crimson italic">no goods</span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatPill({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex items-center gap-1 bg-white/10 rounded-md px-2 py-0.5">
-      <span className="text-xs">{label}</span>
-      <span className="font-cinzel font-bold text-white text-[11px]">{value}</span>
     </div>
   );
 }

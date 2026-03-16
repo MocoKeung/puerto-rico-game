@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import useGameEngine from '../../store/gameEngine';
 
 interface GameLogProps {
@@ -7,48 +8,97 @@ interface GameLogProps {
 
 export default function GameLog({ isOpen, onClose }: GameLogProps) {
   const gameLog = useGameEngine(s => s.gameLog);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new entries arrive and drawer is open
+  useEffect(() => {
+    if (isOpen && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [gameLog, isOpen]);
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop — covers only the content area (absolute, not fixed) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-40"
+          className="absolute inset-0 bg-black/40 z-20 backdrop-blur-[1px]"
           onClick={onClose}
         />
       )}
 
-      {/* Drawer */}
+      {/* Drawer panel — slides in from right, contained within content area */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+        className={`
+          absolute top-0 right-0 h-full w-72 sm:w-80
+          flex flex-col
+          shadow-[-6px_0_24px_rgba(0,0,0,0.4)]
+          transform transition-transform duration-300 ease-in-out
+          z-30
+          ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+        `}
+        style={{ background: '#f5e6c8', borderLeft: '1px solid rgba(201,135,12,0.35)' }}
       >
-        <div className="bg-amber-800 text-white px-4 py-3 flex items-center justify-between">
-          <h2 className="font-bold">📜 Game Log</h2>
+        {/* Header */}
+        <div
+          className="flex-shrink-0 px-4 py-3 flex items-center justify-between"
+          style={{
+            background: 'linear-gradient(135deg, #3d1f0a, #5a2e10)',
+            borderBottom: '1px solid rgba(201,135,12,0.3)',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-base">📜</span>
+            <h2 className="font-cinzel font-bold text-[#f0a830] text-sm tracking-wider uppercase">
+              Game Log
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-amber-700 transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-[#c9870c]/60 hover:text-[#f0a830] hover:bg-white/10 transition-colors text-sm font-bold"
+            aria-label="Close log"
           >
             ✕
           </button>
         </div>
 
-        <div className="overflow-y-auto h-[calc(100%-52px)] p-3 space-y-1">
-          {gameLog.map((entry, i) => (
-            <div
-              key={i}
-              className={`text-xs px-2 py-1.5 rounded ${
-                entry.seat === null
-                  ? 'bg-amber-50 text-amber-700 font-medium'
-                  : entry.seat === 0
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'text-gray-600'
-              }`}
-            >
-              {entry.message}
-            </div>
-          ))}
+        {/* Gold accent line */}
+        <div className="h-px flex-shrink-0 bg-gradient-to-r from-transparent via-[#c9870c]/50 to-transparent" />
+
+        {/* Log entries */}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto p-3 space-y-1"
+        >
+          {gameLog.length === 0 ? (
+            <p className="text-center text-xs font-crimson italic text-[#5a2e10]/40 py-6">
+              No events yet.
+            </p>
+          ) : (
+            gameLog.map((entry, i) => (
+              <div
+                key={i}
+                className={`
+                  text-xs px-2.5 py-1.5 rounded-lg font-crimson leading-snug
+                  ${entry.seat === null
+                    ? 'bg-amber-100/80 text-amber-800 border border-amber-200/60 font-semibold'
+                    : entry.seat === 0
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/40'
+                      : 'text-[#5a2e10]/65 border-b border-[#c9870c]/10'}
+                `}
+              >
+                {entry.message}
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Footer entry count */}
+        <div
+          className="flex-shrink-0 px-4 py-2 text-[10px] font-cinzel text-[#c9870c]/50 border-t tracking-wider"
+          style={{ borderColor: 'rgba(201,135,12,0.2)' }}
+        >
+          {gameLog.length} {gameLog.length === 1 ? 'event' : 'events'}
         </div>
       </div>
     </>

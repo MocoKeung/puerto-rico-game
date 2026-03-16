@@ -13,43 +13,42 @@ export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
   if (!player) return null;
 
   return (
+    // Part of the flex-column layout — no longer `fixed`, so it doesn't
+    // fight for z-index with the log drawer or other overlays.
     <div
-      className="fixed bottom-0 left-0 right-0 z-40 shadow-[0_-4px_30px_rgba(0,0,0,0.5)]"
+      className="flex-shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]"
       style={{
         background: 'linear-gradient(180deg, rgba(61,31,10,0.97) 0%, rgba(45,20,5,0.99) 100%)',
         borderTop: '1px solid rgba(201,135,12,0.3)',
       }}
     >
-      {/* Gold accent line */}
+      {/* Gold accent */}
       <div className="h-px bg-gradient-to-r from-transparent via-[#c9870c]/60 to-transparent" />
 
-      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3 flex-wrap">
+      <div className="max-w-screen-xl mx-auto px-4 py-2 flex items-center gap-3 flex-wrap">
 
         {/* Primary stats */}
         <div className="flex items-center gap-2">
-          <TokenBadge icon={<DoubloonIcon size={18} />} value={player.doubloons} label="coins" />
-          <TokenBadge icon={<VPIcon size={18} />} value={player.victoryPoints} label="VP" />
-          <TokenBadge icon={<ColonistIcon size={16} />} value={player.colonists} label="free" />
+          <TokenBadge icon={<DoubloonIcon size={16} />} value={player.doubloons} label="coins" />
+          <TokenBadge icon={<VPIcon size={16} />} value={player.victoryPoints} label="VP" />
+          <TokenBadge icon={<ColonistIcon size={14} />} value={player.colonists} label="free" />
         </div>
 
         {/* Divider */}
-        <div className="h-6 w-px bg-[#c9870c]/25" />
+        <div className="h-5 w-px bg-[#c9870c]/25" />
 
-        {/* Resources */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        {/* Goods */}
+        <div className="flex items-center gap-1 flex-wrap">
           {RESOURCE_ORDER.map(resource => (
             <div
               key={resource}
               className={`
-                flex items-center gap-1 px-2 py-1 rounded-lg transition-all duration-200
-                ${player.goods[resource] > 0
-                  ? 'bg-white/12 ring-1 ring-[#c9870c]/25'
-                  : 'opacity-35'
-                }
+                flex items-center gap-1 px-1.5 py-1 rounded-lg transition-opacity duration-200
+                ${player.goods[resource] > 0 ? 'bg-white/10 ring-1 ring-[#c9870c]/25' : 'opacity-30'}
               `}
             >
-              <ResourceIcon type={resource} size={16} />
-              <span className={`font-cinzel font-bold text-sm ${player.goods[resource] > 0 ? 'text-white' : 'text-white/40'}`}>
+              <ResourceIcon type={resource} size={14} />
+              <span className={`font-cinzel font-bold text-xs ${player.goods[resource] > 0 ? 'text-white' : 'text-white/40'}`}>
                 {player.goods[resource]}
               </span>
               <span className="text-[9px] text-white/40 font-crimson hidden sm:inline">
@@ -59,21 +58,20 @@ export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
           ))}
         </div>
 
-        {/* Right side */}
+        {/* Supply info + Log button */}
         <div className="ml-auto flex items-center gap-3">
-          <div className="text-[9px] text-[#c9870c]/50 font-cinzel tracking-wide space-x-2 hidden md:flex">
-            <span>VP pool: {vpSupply}</span>
-            <span>·</span>
+          <div className="text-[9px] text-[#c9870c]/50 font-cinzel tracking-wide hidden md:flex items-center gap-1.5">
+            <span>VP: {vpSupply}</span>
+            <span className="text-[#c9870c]/25">·</span>
             <span>Colonists: {colonistSupply}+{colonistShip}⛵</span>
           </div>
+
           <button
             onClick={onToggleLog}
-            className="px-3 py-1.5 rounded-lg text-xs font-cinzel text-[#f0a830] transition-all duration-200 tracking-wide"
-            style={{ background: 'rgba(201,135,12,0.15)', border: '1px solid rgba(201,135,12,0.25)' }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(201,135,12,0.25)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(201,135,12,0.15)')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-cinzel text-[#f0a830] tracking-wide transition-all duration-150 hover:bg-[#c9870c]/25 active:bg-[#c9870c]/35 focus:outline-none focus:ring-1 focus:ring-[#c9870c]/60"
+            style={{ background: 'rgba(201,135,12,0.12)', border: '1px solid rgba(201,135,12,0.25)' }}
           >
-            📜 Log
+            📜 <span className="hidden xs:inline">Log</span>
           </button>
         </div>
       </div>
@@ -84,12 +82,12 @@ export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
 function TokenBadge({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
   return (
     <div
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
       style={{ background: 'rgba(201,135,12,0.12)', border: '1px solid rgba(201,135,12,0.2)' }}
     >
       {icon}
-      <span className="font-cinzel font-bold text-[#f0a830] text-base leading-none">{value}</span>
-      <span className="text-[9px] text-[#c9870c]/60 font-cinzel tracking-wide uppercase">{label}</span>
+      <span className="font-cinzel font-bold text-[#f0a830] text-sm leading-none">{value}</span>
+      <span className="text-[9px] text-[#c9870c]/60 font-cinzel tracking-wide uppercase hidden sm:inline">{label}</span>
     </div>
   );
 }
