@@ -1,6 +1,7 @@
+import { Coins, Store } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../../store/gameEngine';
-import { ResourceIcon, DoubloonIcon } from '../../icons/ResourceIcons';
+import { ResourceIcon } from '../../icons/ResourceIcons';
 import { RESOURCE_ORDER, RESOURCE_LABELS, TRADE_PRICES } from '../../../data/constants';
 
 export default function TraderPanel() {
@@ -13,7 +14,7 @@ export default function TraderPanel() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-bounce text-4xl mb-3">💰</div>
+          <div className="animate-bounce mb-3"><Coins size={40} className="text-amber-500 mx-auto" strokeWidth={1.5} /></div>
           <p className="text-amber-600 font-medium">{t('trader.opponentTrading', { name: player?.name })}</p>
         </div>
       </div>
@@ -33,7 +34,7 @@ export default function TraderPanel() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-amber-900">{t('trader.title')}</h2>
+          <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2"><Store size={18} strokeWidth={2} />{t('trader.title')}</h2>
           <p className="text-sm text-amber-600">
             {t('trader.instructions')}
             {tradeBonus > 0 && (

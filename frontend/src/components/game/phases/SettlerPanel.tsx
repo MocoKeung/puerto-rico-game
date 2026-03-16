@@ -1,3 +1,4 @@
+import { Leaf } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../../store/gameEngine';
 import { ResourceIcon } from '../../icons/ResourceIcons';
@@ -13,7 +14,7 @@ export default function SettlerPanel() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-bounce text-4xl mb-3">🌱</div>
+          <div className="animate-bounce mb-3"><Leaf size={40} className="text-emerald-500 mx-auto" strokeWidth={1.5} /></div>
           <p className="text-amber-600 font-medium">
             {t('settler.opponentChoosing', { name: player?.name })}
           </p>

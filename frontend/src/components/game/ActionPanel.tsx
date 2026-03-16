@@ -1,3 +1,4 @@
+import { Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../store/gameEngine';
 import RoleSelectionPanel from './phases/RoleSelectionPanel';
@@ -39,7 +40,7 @@ export default function ActionPanel() {
             {phase === 'prospector'      && <ProspectorPanel />}
             {phase === 'game_over' && (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <div className="text-5xl">🏆</div>
+                <Trophy size={48} className="text-[#c9870c]" strokeWidth={1.5} />
                 <h2 className="font-cinzel font-bold text-[#3d1f0a] text-2xl">{t('gameOver.title')}</h2>
                 <p className="font-crimson text-[#5a2e10] italic">{t('gameOver.subtitle')}</p>
               </div>

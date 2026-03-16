@@ -1,3 +1,4 @@
+import { Crown, Swords } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../store/gameEngine';
 import LanguageToggle from '../ui/LanguageToggle';
@@ -14,7 +15,6 @@ export default function GameHeader() {
 
   return (
     <header className="flex-shrink-0 bg-wood shadow-[0_2px_20px_rgba(0,0,0,0.5)] relative overflow-hidden">
-      {/* Subtle wood grain */}
       <div className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
           backgroundImage: 'repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px)',
@@ -26,38 +26,41 @@ export default function GameHeader() {
         {/* Left: title + round */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🌴</span>
-            <h1 className="font-cinzel font-bold text-[#f0a830] text-base tracking-widest uppercase">
+            <span className="text-xl leading-none">🌴</span>
+            <h1 className="font-cinzel font-bold text-[#f0a830] text-base tracking-widest uppercase leading-none">
               Puerto Rico
             </h1>
           </div>
           <div className="h-4 w-px bg-[#c9870c]/40" />
-          <span className="font-cinzel font-bold text-[#f0a830] text-sm">
+          <span className="font-cinzel font-bold text-[#f0a830]/80 text-xs">
             {t('common.round', { n: round })}
           </span>
         </div>
 
-        {/* Center: phase + role picker */}
+        {/* Center: phase pill */}
         <div className="flex items-center gap-2 mx-auto">
-          <div className="flex items-center gap-2 bg-white/8 border border-white/15 rounded-lg px-4 py-1 backdrop-blur-sm">
-            <span className="text-[10px] text-white/50 font-cinzel tracking-[0.15em] uppercase">
+          <div className="flex items-center gap-2 bg-white/8 border border-white/15 rounded-full px-4 py-1 backdrop-blur-sm">
+            <Swords size={12} className="text-[#c9870c]/70" />
+            <span className="text-[10px] text-white/50 font-cinzel tracking-[0.12em] uppercase">
               {t('common.phase')}
             </span>
             <span className="font-cinzel font-bold text-white text-sm">{phaseLabel}</span>
           </div>
           {phase !== 'role_selection' && phase !== 'game_over' && rolePicker && (
-            <div className="text-xs text-white/50 font-crimson italic hidden sm:block">
-              by <span className="text-white/70 not-italic font-semibold">{rolePicker.name}</span>
+            <div className="text-xs text-white/45 font-crimson italic hidden sm:block">
+              by <span className="text-white/65 not-italic font-semibold">{rolePicker.name}</span>
             </div>
           )}
         </div>
 
         {/* Right: governor + turn + language toggle */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="flex items-center gap-1.5 text-white/60 hidden sm:flex">
-            <span className="text-[#f0a830] text-sm">👑</span>
-            <span className="font-crimson text-sm">{governor?.name}</span>
-          </div>
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          {governor && (
+            <div className="flex items-center gap-1.5 hidden sm:flex">
+              <Crown size={13} className="text-[#f0a830]" strokeWidth={2.5} />
+              <span className="font-crimson text-sm text-white/65">{governor.name}</span>
+            </div>
+          )}
 
           <div className="h-4 w-px bg-white/20 hidden sm:block" />
 
@@ -72,7 +75,7 @@ export default function GameHeader() {
               </span>
             </div>
           ) : (
-            <span className="text-white/50 font-crimson text-sm italic hidden md:block">
+            <span className="text-white/45 font-crimson text-sm italic hidden md:block">
               {t('common.turn', { name: activePlayer?.name })}
             </span>
           )}

@@ -1,3 +1,4 @@
+import { Hammer, Star, Coins, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../../store/gameEngine';
 import { ResourceIcon } from '../../icons/ResourceIcons';
@@ -14,7 +15,7 @@ export default function BuilderPanel() {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-bounce text-4xl mb-3">🏗️</div>
+          <div className="animate-bounce mb-3"><Hammer size={40} className="text-amber-500 mx-auto" strokeWidth={1.5} /></div>
           <p className="text-amber-600 font-medium">{t('builder.opponentBuying', { name: player?.name })}</p>
         </div>
       </div>
@@ -135,17 +136,22 @@ function BuildingSection({
                     </div>
                   )}
                 </div>
-                <div className="text-right shrink-0">
-                  <div className="flex items-center gap-1">
+                <div className="text-right shrink-0 space-y-0.5">
+                  <div className="flex items-center justify-end gap-1">
                     {discount > 0 && cost < b.cost && (
                       <span className="text-xs text-gray-400 line-through">{b.cost}</span>
                     )}
-                    <span className={`text-sm font-bold ${canAfford ? 'text-emerald-600' : 'text-red-500'}`}>
-                      💰{cost}
+                    <span className={`flex items-center gap-0.5 text-sm font-bold ${canAfford ? 'text-emerald-600' : 'text-red-500'}`}>
+                      <Coins size={11} strokeWidth={2.5} />
+                      {cost}
                     </span>
                   </div>
-                  <div className="text-[10px] text-amber-500">{t('builder.vp', { n: b.vp })}</div>
-                  <div className="text-[10px] text-amber-400">{t('builder.workers', { n: b.maxColonists })}</div>
+                  <div className="flex items-center justify-end gap-0.5 text-[10px] text-amber-500">
+                    <Star size={9} strokeWidth={2.5} />{b.vp} VP
+                  </div>
+                  <div className="flex items-center justify-end gap-0.5 text-[10px] text-amber-400">
+                    <Users size={9} strokeWidth={2.5} />×{b.maxColonists}
+                  </div>
                   <div className="text-[10px] text-gray-400">{t('builder.left', { n: remaining })}</div>
                 </div>
               </div>

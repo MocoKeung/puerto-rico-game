@@ -1,3 +1,4 @@
+import { Crown, Coins, Star, Users, Leaf, Building2, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { PlayerState } from '../../store/gameEngine';
 import { ResourceIcon } from '../icons/ResourceIcons';
@@ -16,32 +17,29 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
 
   return (
     <div
-      className={`
-        relative rounded-xl overflow-hidden
-        transition-all duration-300
-        ${isActive
-          ? 'ring-2 ring-[#f0a830] shadow-[0_0_14px_rgba(240,168,48,0.4)] scale-[1.02]'
-          : 'ring-1 ring-white/10'
-        }
-      `}
-      style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(6px)' }}
+      className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
+        isActive
+          ? 'ring-2 ring-[#f0a830] shadow-[0_0_16px_rgba(240,168,48,0.35)] scale-[1.015]'
+          : 'ring-1 ring-white/8'
+      }`}
+      style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' }}
     >
-      {isActive && <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />}
-
       {/* Name bar */}
       <div
-        className="relative z-10 px-3 py-1.5 flex items-center gap-2"
-        style={{ backgroundColor: player.color + 'cc' }}
+        className="px-3 py-2 flex items-center gap-2"
+        style={{ backgroundColor: player.color + 'dd' }}
       >
+        {/* Avatar */}
         <div
-          className="w-6 h-6 rounded-full flex items-center justify-center font-cinzel font-bold text-[10px] text-white flex-shrink-0 shadow-inner"
-          style={{ backgroundColor: player.color, border: '1.5px solid rgba(255,255,255,0.3)' }}
+          className="w-7 h-7 rounded-full flex items-center justify-center font-cinzel font-bold text-[11px] text-white flex-shrink-0 shadow-inner"
+          style={{ backgroundColor: player.color, border: '2px solid rgba(255,255,255,0.25)' }}
         >
           {initials}
         </div>
-        <div className="flex-1 min-w-0 flex items-center gap-1.5">
-          {isGovernor && <span className="text-[#f0a830] text-[10px] flex-shrink-0">👑</span>}
-          <span className="font-cinzel font-bold text-white text-[11px] truncate">{player.name}</span>
+
+        <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden">
+          {isGovernor && <Crown size={10} className="text-[#fde047] flex-shrink-0" strokeWidth={2.5} />}
+          <span className="font-cinzel font-bold text-white text-xs truncate">{player.name}</span>
           {isActive && (
             <span className="text-[9px] text-white/60 font-crimson italic flex-shrink-0 ml-auto">
               {t('common.thinking')}
@@ -50,31 +48,43 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="relative z-10 px-3 py-2 space-y-1.5">
+      {/* Stats grid */}
+      <div className="px-3 pt-2 pb-1.5 space-y-2">
+        {/* 3 primary stats */}
         <div className="grid grid-cols-3 gap-1">
-          <StatPill icon="💰" value={player.doubloons} label={t('common.gold')} />
-          <StatPill icon="⭐" value={player.victoryPoints} label={t('common.vp')} />
-          <StatPill icon="👷" value={player.colonists} label={t('common.col')} />
+          <MiniStat icon={<Coins size={11} className="text-[#fbbf24]" strokeWidth={2.5} />} value={player.doubloons} label={t('common.gold')} />
+          <MiniStat icon={<Star size={10} className="text-[#fbbf24]" strokeWidth={2.5} />} value={player.victoryPoints} label={t('common.vp')} />
+          <MiniStat icon={<Users size={10} className="text-[#fbbf24]" strokeWidth={2.5} />} value={player.colonists} label={t('common.col')} />
         </div>
 
-        <div className="flex items-center justify-between text-[10px] text-white/50 font-crimson">
-          <span>🌱 {player.plantations.length} {t('common.tiles')}</span>
-          <span>🏛 {player.buildings.length} {t('common.bldgs')}</span>
-          <span>📦 {totalGoods} {t('common.goods')}</span>
+        {/* Board overview */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-0.5 text-white/50">
+            <Leaf size={9} strokeWidth={2} />
+            <span className="text-[10px] font-cinzel ml-0.5">{player.plantations.length}</span>
+          </div>
+          <div className="flex items-center gap-0.5 text-white/50">
+            <Building2 size={9} strokeWidth={2} />
+            <span className="text-[10px] font-cinzel ml-0.5">{player.buildings.length}</span>
+          </div>
+          <div className="flex items-center gap-0.5 text-white/50">
+            <Package size={9} strokeWidth={2} />
+            <span className="text-[10px] font-cinzel ml-0.5">{totalGoods}</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5 min-h-[16px]">
+        {/* Goods tokens row */}
+        <div className="flex items-center gap-1 min-h-[18px]">
           {RESOURCE_ORDER.map(r =>
             player.goods[r] > 0 ? (
               <div key={r} className="flex items-center gap-0.5">
-                <ResourceIcon type={r} size={12} />
-                <span className="text-[10px] font-bold text-white/80">{player.goods[r]}</span>
+                <ResourceIcon type={r} size={14} />
+                <span className="text-[10px] font-bold text-white/80 tabular-nums">{player.goods[r]}</span>
               </div>
             ) : null
           )}
           {totalGoods === 0 && (
-            <span className="text-[10px] text-white/25 font-crimson italic">
+            <span className="text-[10px] text-white/20 font-crimson italic">
               {t('common.noGoods')}
             </span>
           )}
@@ -84,14 +94,14 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
   );
 }
 
-function StatPill({ icon, value, label }: { icon: string; value: number; label: string }) {
+function MiniStat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
   return (
-    <div className="flex flex-col items-center bg-white/10 rounded-lg py-1 px-1 gap-0.5">
+    <div className="flex flex-col items-center bg-white/8 rounded-lg py-1 px-1 gap-0.5">
       <div className="flex items-center gap-0.5">
-        <span className="text-xs">{icon}</span>
-        <span className="font-cinzel font-bold text-white text-xs">{value}</span>
+        {icon}
+        <span className="font-cinzel font-bold text-white text-xs tabular-nums leading-none">{value}</span>
       </div>
-      <span className="text-[8px] text-white/40 font-cinzel uppercase tracking-wide">{label}</span>
+      <span className="text-[8px] text-white/35 font-cinzel uppercase tracking-wide leading-none">{label}</span>
     </div>
   );
 }
