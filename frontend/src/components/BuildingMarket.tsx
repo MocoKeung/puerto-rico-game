@@ -14,116 +14,102 @@ export default function BuildingMarket() {
   const currentPlayer = players[currentPlayerIndex];
   const canBuy = selectedRole === 'builder';
 
-  const getBuildCost = (cost: number) => {
-    return canBuy ? Math.max(0, cost - 1) : cost;
-  };
+  const getBuildCost = (cost: number) => (canBuy ? Math.max(0, cost - 1) : cost);
 
   const handleBuyBuilding = (buildingId: string) => {
     if (currentPlayer && canBuy) {
       const building = buildingsAvailable.find(b => b.id === buildingId);
-      if (building) {
-        const cost = getBuildCost(building.cost);
-        if (currentPlayer.doubloons >= cost) {
-          buyBuilding(currentPlayer.id, buildingId);
-        }
+      if (building && currentPlayer.doubloons >= getBuildCost(building.cost)) {
+        buyBuilding(currentPlayer.id, buildingId);
       }
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-amber-700 to-amber-600 px-4 py-3 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <span>🏛️</span>
-          Building Market
-        </h2>
+    <div className="bg-slate-800 border border-slate-600 rounded-2xl overflow-hidden shadow-xl">
+      {/* Header */}
+      <div className="px-5 py-3 bg-slate-700 border-b border-slate-600 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">🏛️</span>
+          <h2 className="text-white font-bold">Building Market</h2>
+        </div>
         {canBuy && (
-          <span className="text-amber-200 text-sm font-medium">
-            Builder discount: -1 coin
+          <span className="text-green-300 text-xs font-semibold bg-green-900/40 border border-green-700/40 px-2.5 py-1 rounded-full">
+            Builder: −1 coin
           </span>
         )}
       </div>
-      
+
       <div className="p-4">
-        <div className="space-y-3 max-h-72 overflow-y-auto">
+        {/* Legend */}
+        <div className="flex gap-4 mb-3 text-xs text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-blue-500 inline-block"></span>
+            Production — produces goods
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-purple-500 inline-block"></span>
+            Violet — special abilities & VP
+          </span>
+        </div>
+
+        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
           {buildingsAvailable.length === 0 ? (
-            <div className="text-center py-6 text-gray-500">
-              <p>No buildings available</p>
-            </div>
+            <div className="py-8 text-center text-slate-500 italic text-sm">No buildings available</div>
           ) : (
             buildingsAvailable.map((building) => {
               const cost = getBuildCost(building.cost);
               const canAfford = currentPlayer && currentPlayer.doubloons >= cost;
+              const isProduction = building.type === 'production';
 
               return (
-                <div
+                <button
                   key={building.id}
-                  className={`
-                    rounded-lg border-2 p-3 transition-all duration-200
-                    ${canBuy 
-                      ? canAfford 
-                        ? 'border-amber-300 bg-amber-50 hover:bg-amber-100 cursor-pointer' 
-                        : 'border-red-200 bg-red-50 opacity-70'
-                      : 'border-gray-200 bg-gray-50'
-                    }
-                  `}
                   onClick={() => canAfford && handleBuyBuilding(building.id)}
+                  disabled={!canBuy || !canAfford}
+                  className={`
+                    w-full text-left rounded-xl border px-4 py-3 transition-all duration-150 outline-none
+                    flex items-start justify-between gap-3
+                    ${canBuy
+                      ? canAfford
+                        ? 'border-amber-500/50 bg-amber-900/20 hover:bg-amber-900/40 hover:border-amber-400 cursor-pointer active:scale-[0.99] focus:ring-2 focus:ring-amber-400'
+                        : 'border-red-900/40 bg-red-900/10 opacity-50 cursor-not-allowed'
+                      : 'border-slate-600 bg-slate-700/30 cursor-default'}
+                  `}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-gray-800">{building.name}</h3>
-                        <span className={`
-                          px-2 py-0.5 rounded text-xs font-medium
-                          ${building.type === 'production' 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-purple-100 text-purple-800'}
-                        `}>
-                          {building.type === 'production' ? 'Production' : 'Violet'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                        {building.productionType && (
-                          <span className="flex items-center gap-1">
-                            Makes: {productionIcons[building.productionType]}
-                          </span>
-                        )}
-                        <span>👷 {building.maxOccupants} workers</span>
-                        <span>⭐ {building.vp} VP</span>
-                      </div>
-                    </div>
-
-                    <div className="text-right ml-4">
-                      <div className={`
-                        font-bold text-lg
-                        ${canBuy && cost < building.cost ? 'text-green-600' : 'text-amber-700'}
+                  {/* Building info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-white font-bold text-sm">{building.name}</span>
+                      <span className={`
+                        text-[10px] font-semibold px-1.5 py-0.5 rounded
+                        ${isProduction ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'}
                       `}>
-                        {cost} 💰
-                      </div>
-                      {canBuy && building.cost > cost && (
-                        <div className="text-xs text-green-600 font-medium">
-                          Save {building.cost - cost}!
-                        </div>
+                        {isProduction ? 'Production' : 'Violet'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                      {building.productionType && (
+                        <span>Makes: {productionIcons[building.productionType]}</span>
                       )}
+                      <span>👷 {building.maxOccupants} workers</span>
+                      <span>⭐ {building.vp} VP</span>
                     </div>
                   </div>
-                </div>
+
+                  {/* Cost */}
+                  <div className="text-right shrink-0">
+                    <div className={`font-bold text-base ${canBuy && cost < building.cost ? 'text-green-400' : 'text-amber-400'}`}>
+                      {cost} 💰
+                    </div>
+                    {canBuy && building.cost > cost && (
+                      <div className="text-[10px] text-green-400 font-semibold">Save {building.cost - cost}!</div>
+                    )}
+                  </div>
+                </button>
               );
             })
           )}
-        </div>
-
-        {/* Building Info */}
-        <div className="mt-4 pt-3 border-t border-gray-200 text-xs text-gray-500">
-          <p className="mb-1">
-            <span className="inline-block w-3 h-3 bg-blue-100 rounded mr-1"></span>
-            <strong>Production buildings</strong> - Produce goods when colonized
-          </p>
-          <p>
-            <span className="inline-block w-3 h-3 bg-purple-100 rounded mr-1"></span>
-            <strong>Violet buildings</strong> - Special abilities and end-game VP
-          </p>
         </div>
       </div>
     </div>

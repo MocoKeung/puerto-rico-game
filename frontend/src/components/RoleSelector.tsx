@@ -4,43 +4,50 @@ const roleDetails: Record<RoleType, {
   name: string;
   icon: string;
   description: string;
-  color: string;
+  accent: string;
+  bg: string;
 }> = {
   settler: {
     name: 'Settler',
     icon: '🌱',
     description: 'Take a plantation',
-    color: 'from-green-500 to-green-600',
+    accent: 'border-green-400',
+    bg: 'hover:bg-green-600 bg-green-700 focus:ring-green-400',
   },
   builder: {
     name: 'Builder',
     icon: '🔨',
-    description: 'Buy building (-1 coin)',
-    color: 'from-blue-500 to-blue-600',
+    description: 'Buy building (−1 coin)',
+    accent: 'border-blue-400',
+    bg: 'hover:bg-blue-600 bg-blue-700 focus:ring-blue-400',
   },
   mayor: {
     name: 'Mayor',
     icon: '📢',
     description: 'Get colonists (+1)',
-    color: 'from-purple-500 to-purple-600',
+    accent: 'border-purple-400',
+    bg: 'hover:bg-purple-600 bg-purple-700 focus:ring-purple-400',
   },
   trader: {
     name: 'Trader',
     icon: '💰',
     description: 'Sell goods',
-    color: 'from-amber-500 to-amber-600',
+    accent: 'border-amber-400',
+    bg: 'hover:bg-amber-600 bg-amber-700 focus:ring-amber-400',
   },
   captain: {
     name: 'Captain',
     icon: '⛵',
     description: 'Ship for VP',
-    color: 'from-sky-500 to-sky-600',
+    accent: 'border-sky-400',
+    bg: 'hover:bg-sky-600 bg-sky-700 focus:ring-sky-400',
   },
   prospector: {
     name: 'Prospector',
     icon: '🪙',
-    description: 'Take doubloon',
-    color: 'from-orange-500 to-orange-600',
+    description: 'Take a doubloon',
+    accent: 'border-orange-400',
+    bg: 'hover:bg-orange-600 bg-orange-700 focus:ring-orange-400',
   },
 };
 
@@ -54,9 +61,8 @@ export default function RoleSelector() {
   const handleSelectRole = (roleType: RoleType) => {
     const role = roles.find(r => r.type === roleType);
     if (role?.selected) return;
-    
+
     selectRole(roleType);
-    // Auto advance to next player for role selection
     setTimeout(() => {
       const { roles: newRoles, players: newPlayers } = useGameStore.getState();
       const newSelectedCount = newRoles.filter(r => r.selected).length;
@@ -68,117 +74,113 @@ export default function RoleSelector() {
 
   const handleEndRolePhase = () => {
     endRolePhase();
-    // Reset current player to governor for action phase
     const { governorIndex: govIndex } = useGameStore.getState();
     useGameStore.setState({ currentPlayerIndex: govIndex });
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-amber-700 to-amber-600 px-4 py-3">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          <span>🎭</span>
-          Select Your Role
-          {selectedCount > 0 && (
-            <span className="text-sm font-normal text-amber-200 ml-auto">
-              ({selectedCount}/{players.length} selected)
-            </span>
-          )}
-        </h2>
+    <div className="bg-slate-800 border border-slate-600 rounded-2xl overflow-hidden shadow-xl">
+      {/* Header */}
+      <div className="px-5 py-3.5 bg-slate-700 border-b border-slate-600 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xl">🎭</span>
+          <h2 className="text-white font-bold text-lg">Select Your Role</h2>
+        </div>
+        {selectedCount > 0 && (
+          <span className="bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-semibold px-3 py-1 rounded-full">
+            {selectedCount}/{players.length} selected
+          </span>
+        )}
       </div>
-      
-      <div className="p-4">
-        {/* Role Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {(roles.map((role) => {
+
+      <div className="p-4 space-y-4">
+        {/* Role Button Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {roles.map((role) => {
             const details = roleDetails[role.type];
             const isSelected = role.selected;
-            const selector = isSelected ? (role.selectedBy !== null ? players[role.selectedBy]?.name : '') : '';
+            const isSelectable = !isSelected && gamePhase === 'roleSelection';
+            const selector = isSelected && role.selectedBy !== null ? players[role.selectedBy]?.name : null;
 
             return (
               <button
                 key={role.type}
-                onClick={() => !isSelected && gamePhase === 'roleSelection' && handleSelectRole(role.type)}
+                onClick={() => isSelectable && handleSelectRole(role.type)}
                 disabled={isSelected || gamePhase !== 'roleSelection'}
                 className={`
-                  relative rounded-lg p-3 text-left transition-all duration-200
-                  ${isSelected 
-                    ? 'bg-gray-100 border-2 border-gray-300 cursor-not-allowed opacity-60' 
-                    : gamePhase === 'roleSelection'
-                      ? `bg-gradient-to-br ${details.color} hover:scale-105 hover:shadow-lg text-white border-2 border-transparent`
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-50'
-                  }
+                  relative flex flex-col items-center gap-1.5 px-3 py-4 rounded-xl border-2
+                  font-semibold text-sm transition-all duration-150 outline-none
+                  focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800
+                  ${isSelected
+                    ? 'bg-slate-700 border-slate-500 text-slate-500 cursor-not-allowed opacity-50'
+                    : isSelectable
+                      ? `${details.bg} border-transparent text-white cursor-pointer active:scale-95 shadow-lg`
+                      : 'bg-slate-700/50 border-slate-600 text-slate-500 cursor-not-allowed opacity-40'}
                 `}
               >
+                {/* Doubloon bonus badge */}
                 {role.doubloons > 0 && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-xs font-bold text-yellow-900 shadow-md">
+                  <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center text-xs font-bold shadow">
                     {role.doubloons}
                   </div>
                 )}
-                
-                {/* CSS Placeholder for Role Card - used for prospector and when icon doesn't exist */}
-                <div className={`
-                  ${!details.icon || role.type === 'prospector' 
-                    ? 'prospector-placeholder w-full h-16 rounded-md flex items-center justify-center text-lg font-bold' 
-                    : 'text-3xl mb-1'
-                  }
-                  ${!details.icon || role.type === 'prospector'
-                    ? 'bg-gradient-to-r from-orange-700 to-orange-600 border border-orange-500 text-amber-100'
-                    : ''
-                  }`
-                  }
-                >
-                  {role.type === 'prospector' ? 'PROSPECTOR' : (details.icon || '?')}
-                </div>
-                
-                <div className="font-bold text-sm">{details.name}</div>
-                <div className="text-xs opacity-80 mt-1">{details.description}</div>
-                {isSelected && selector && (
-                  <div className="mt-2 text-xs font-semibold text-gray-500">
-                    ✓ Selected by {selector}
+                {/* Selected tick */}
+                {isSelected && (
+                  <div className="absolute -top-2 -left-2 w-5 h-5 bg-slate-500 rounded-full flex items-center justify-center text-xs text-white">
+                    ✓
                   </div>
+                )}
+
+                <span className="text-2xl">{details.icon}</span>
+                <span className="text-center leading-tight">{details.name}</span>
+                <span className="text-[10px] text-center opacity-75 font-normal leading-tight">{details.description}</span>
+                {selector && (
+                  <span className="text-[10px] text-slate-400 font-normal">by {selector}</span>
                 )}
               </button>
             );
-          }))}
+          })}
         </div>
 
-        {/* Phase Controls */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+        {/* Status + Action Row */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-2 text-sm">
             {gamePhase === 'roleSelection' ? (
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                Waiting for {players[currentPlayerIndex]?.name} to select a role
-              </span>
+              <>
+                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                <span className="text-slate-300">
+                  Waiting for <span className="text-white font-semibold">{players[currentPlayerIndex]?.name}</span> to pick
+                </span>
+              </>
             ) : (
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
-                Action phase: {selectedRole || 'Ready'}
-              </span>
+              <>
+                <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                <span className="text-slate-300">
+                  Action phase: <span className="text-amber-300 font-semibold capitalize">{selectedRole || 'Ready'}</span>
+                </span>
+              </>
             )}
           </div>
-          
-          {allSelected && gamePhase === 'roleSelection' && (
-            <button
-              onClick={handleEndRolePhase}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-            >
-              Start Actions
-            </button>
-          )}
-          
-          {gamePhase === 'action' && (
-            <button
-              onClick={() => {
-                const { nextRound } = useGameStore.getState();
-                nextRound();
-              }}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-            >
-              End Round
-            </button>
-          )}
+
+          <div className="flex gap-2">
+            {allSelected && gamePhase === 'roleSelection' && (
+              <button
+                onClick={handleEndRolePhase}
+                className="bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-white font-bold px-5 py-2 rounded-lg shadow-lg transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-800"
+              >
+                Start Actions →
+              </button>
+            )}
+
+            {gamePhase === 'action' && (
+              <button
+                onClick={() => useGameStore.getState().nextRound()}
+                className="bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold px-5 py-2 rounded-lg shadow-lg transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-slate-800"
+              >
+                End Round →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
