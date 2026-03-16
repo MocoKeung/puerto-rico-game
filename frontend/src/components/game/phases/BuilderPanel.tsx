@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../../store/gameEngine';
 import { ResourceIcon } from '../../icons/ResourceIcons';
 import { ALL_BUILDINGS, type BuildingDef } from '../../../data/buildings';
 
 export default function BuilderPanel() {
+  const { t } = useTranslation();
   const { builderBuyBuilding, builderPass, waitingForHuman, players, activePlayerSeat,
           rolePickerSeat, buildingSupply, phase } = useGameEngine();
   const player = players[activePlayerSeat];
@@ -13,7 +15,7 @@ export default function BuilderPanel() {
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="animate-bounce text-4xl mb-3">🏗️</div>
-          <p className="text-amber-600 font-medium">{player?.name} is considering buildings...</p>
+          <p className="text-amber-600 font-medium">{t('builder.opponentBuying', { name: player?.name })}</p>
         </div>
       </div>
     );
@@ -33,24 +35,24 @@ export default function BuilderPanel() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-amber-900">🏗️ Builder — Buy a Building</h2>
+          <h2 className="text-lg font-bold text-amber-900">{t('builder.title')}</h2>
           <p className="text-sm text-amber-600">
-            {isBuilder ? 'You get -1 cost as the Builder.' : 'Buy at full price.'}
-            {quarryDiscount > 0 && ` Quarry discount: -${quarryDiscount}.`}
-            {totalDiscount > 0 && <strong> Total discount: -{totalDiscount}</strong>}
+            {isBuilder ? t('builder.builderDiscount') : t('builder.fullPrice')}
+            {quarryDiscount > 0 && ` ${t('builder.quarryDiscount', { n: quarryDiscount })}`}
+            {totalDiscount > 0 && <strong> {t('builder.totalDiscount', { n: totalDiscount })}</strong>}
           </p>
         </div>
         <button
           onClick={() => builderPass(0)}
           className="px-4 py-2 border-2 border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors text-sm font-medium"
         >
-          Pass
+          {t('common.pass')}
         </button>
       </div>
 
       <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
         <BuildingSection
-          title="Production Buildings"
+          title={t('builder.productionBuildings')}
           buildings={production}
           supply={buildingSupply}
           player={humanPlayer}
@@ -59,7 +61,7 @@ export default function BuilderPanel() {
           onBuy={(id) => builderBuyBuilding(0, id)}
         />
         <BuildingSection
-          title="Violet Buildings"
+          title={t('builder.violetBuildings')}
           buildings={violet}
           supply={buildingSupply}
           player={humanPlayer}
@@ -68,7 +70,7 @@ export default function BuilderPanel() {
           onBuy={(id) => builderBuyBuilding(0, id)}
         />
         <BuildingSection
-          title="Major Buildings (4 VP)"
+          title={t('builder.majorBuildings')}
           buildings={major}
           supply={buildingSupply}
           player={humanPlayer}
@@ -92,6 +94,7 @@ function BuildingSection({
   usedSlots: number;
   onBuy: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div>
       <h3 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">{title}</h3>
@@ -121,14 +124,14 @@ function BuildingSection({
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-bold text-amber-900">{b.name}</span>
                     {b.size === 'large' && (
-                      <span className="text-[9px] bg-amber-100 text-amber-700 px-1 rounded">2×</span>
+                      <span className="text-[9px] bg-amber-100 text-amber-700 px-1 rounded">{t('builder.large')}</span>
                     )}
                   </div>
                   <p className="text-[10px] text-amber-600 mt-0.5 leading-tight">{b.description}</p>
                   {b.productionType && (
                     <div className="mt-1 flex items-center gap-1">
                       <ResourceIcon type={b.productionType} size={14} />
-                      <span className="text-[10px] text-amber-500 capitalize">{b.productionType}</span>
+                      <span className="text-[10px] text-amber-500 capitalize">{t(`resources.${b.productionType}`, { defaultValue: b.productionType })}</span>
                     </div>
                   )}
                 </div>
@@ -141,9 +144,9 @@ function BuildingSection({
                       💰{cost}
                     </span>
                   </div>
-                  <div className="text-[10px] text-amber-500">⭐{b.vp} VP</div>
-                  <div className="text-[10px] text-amber-400">👷×{b.maxColonists}</div>
-                  <div className="text-[10px] text-gray-400">{remaining} left</div>
+                  <div className="text-[10px] text-amber-500">{t('builder.vp', { n: b.vp })}</div>
+                  <div className="text-[10px] text-amber-400">{t('builder.workers', { n: b.maxColonists })}</div>
+                  <div className="text-[10px] text-gray-400">{t('builder.left', { n: remaining })}</div>
                 </div>
               </div>
             </button>

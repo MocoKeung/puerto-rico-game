@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { PlayerState } from '../../store/gameEngine';
 import { ResourceIcon } from '../icons/ResourceIcons';
 import { RESOURCE_ORDER } from '../../data/constants';
@@ -9,6 +10,7 @@ interface AIOpponentCardProps {
 }
 
 export default function AIOpponentCard({ player, isActive, isGovernor }: AIOpponentCardProps) {
+  const { t } = useTranslation();
   const totalGoods = RESOURCE_ORDER.reduce((s, r) => s + player.goods[r], 0);
   const initials = player.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
@@ -24,10 +26,9 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
       `}
       style={{ background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(6px)' }}
     >
-      {/* Active shimmer */}
       {isActive && <div className="absolute inset-0 animate-shimmer pointer-events-none z-0" />}
 
-      {/* ── Name bar ── */}
+      {/* Name bar */}
       <div
         className="relative z-10 px-3 py-1.5 flex items-center gap-2"
         style={{ backgroundColor: player.color + 'cc' }}
@@ -38,35 +39,31 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
         >
           {initials}
         </div>
-
         <div className="flex-1 min-w-0 flex items-center gap-1.5">
-          {isGovernor && <span className="text-[#f0a830] text-xs flex-shrink-0">👑</span>}
+          {isGovernor && <span className="text-[#f0a830] text-[10px] flex-shrink-0">👑</span>}
           <span className="font-cinzel font-bold text-white text-[11px] truncate">{player.name}</span>
           {isActive && (
             <span className="text-[9px] text-white/60 font-crimson italic flex-shrink-0 ml-auto">
-              thinking…
+              {t('common.thinking')}
             </span>
           )}
         </div>
       </div>
 
-      {/* ── Stats ── */}
+      {/* Stats */}
       <div className="relative z-10 px-3 py-2 space-y-1.5">
-        {/* Primary stats: doubloons / VP / colonists */}
         <div className="grid grid-cols-3 gap-1">
-          <StatPill icon="💰" value={player.doubloons} label="gold" />
-          <StatPill icon="⭐" value={player.victoryPoints} label="VP" />
-          <StatPill icon="👷" value={player.colonists} label="col" />
+          <StatPill icon="💰" value={player.doubloons} label={t('common.gold')} />
+          <StatPill icon="⭐" value={player.victoryPoints} label={t('common.vp')} />
+          <StatPill icon="👷" value={player.colonists} label={t('common.col')} />
         </div>
 
-        {/* Board overview */}
         <div className="flex items-center justify-between text-[10px] text-white/50 font-crimson">
-          <span>🌱 {player.plantations.length} tiles</span>
-          <span>🏛 {player.buildings.length} bldgs</span>
-          <span>📦 {totalGoods} goods</span>
+          <span>🌱 {player.plantations.length} {t('common.tiles')}</span>
+          <span>🏛 {player.buildings.length} {t('common.bldgs')}</span>
+          <span>📦 {totalGoods} {t('common.goods')}</span>
         </div>
 
-        {/* Goods mini row */}
         <div className="flex items-center gap-1.5 min-h-[16px]">
           {RESOURCE_ORDER.map(r =>
             player.goods[r] > 0 ? (
@@ -77,7 +74,9 @@ export default function AIOpponentCard({ player, isActive, isGovernor }: AIOppon
             ) : null
           )}
           {totalGoods === 0 && (
-            <span className="text-[10px] text-white/25 font-crimson italic">no goods</span>
+            <span className="text-[10px] text-white/25 font-crimson italic">
+              {t('common.noGoods')}
+            </span>
           )}
         </div>
       </div>

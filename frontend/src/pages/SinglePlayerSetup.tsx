@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useGameEngine from '../store/gameEngine';
 import type { Difficulty } from '../data/constants';
+import LanguageToggle from '../components/ui/LanguageToggle';
 
 export default function SinglePlayerSetup() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const initGame = useGameEngine(s => s.initGame);
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
 
@@ -24,6 +27,11 @@ export default function SinglePlayerSetup() {
       <div className="absolute top-[40%] left-[60%] w-[180px] h-[180px] rounded-full opacity-10 blur-3xl pointer-events-none"
         style={{ background: 'radial-gradient(circle, #c9870c, transparent)' }} />
 
+      {/* Language toggle */}
+      <div className="absolute top-4 right-4 z-30">
+        <LanguageToggle variant="dark" />
+      </div>
+
       {/* Card */}
       <div
         className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6)]"
@@ -41,18 +49,18 @@ export default function SinglePlayerSetup() {
           <div className="text-center mb-8">
             <div className="text-6xl mb-3 filter drop-shadow-lg">🌴</div>
             <h1 className="font-cinzel font-black text-[#3d1f0a] text-4xl tracking-wide mb-1">
-              Puerto Rico
+              {t('setup.title')}
             </h1>
             <div className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-[#c9870c] to-transparent my-3" />
             <p className="font-crimson text-[#5a2e10] text-lg italic">
-              Single Player — You vs 4 Rivals
+              {t('setup.subtitle')}
             </p>
           </div>
 
           {/* Difficulty */}
           <div className="mb-7">
             <h2 className="font-cinzel text-xs text-[#5a2e10]/70 uppercase tracking-[0.2em] mb-3">
-              AI Difficulty
+              {t('setup.difficulty')}
             </h2>
             <div className="grid grid-cols-2 gap-3">
               {(['easy', 'medium'] as Difficulty[]).map(d => (
@@ -76,13 +84,10 @@ export default function SinglePlayerSetup() {
                   }}
                 >
                   <div className="font-cinzel font-bold text-[#3d1f0a] text-sm capitalize mb-1">
-                    {d === 'easy' ? '🌿 Easy' : '⚔️ Medium'}
+                    {d === 'easy' ? t('setup.easy') : t('setup.medium')}
                   </div>
                   <p className="font-crimson text-[#5a2e10]/70 text-xs leading-snug">
-                    {d === 'easy'
-                      ? 'Relaxed play. Great for learning the game.'
-                      : 'Strategic rivals who prioritize production chains.'
-                    }
+                    {d === 'easy' ? t('setup.easyDesc') : t('setup.mediumDesc')}
                   </p>
                 </button>
               ))}
@@ -94,9 +99,9 @@ export default function SinglePlayerSetup() {
             className="rounded-xl p-4 mb-6 space-y-1.5 text-sm"
             style={{ background: 'rgba(61,31,10,0.06)', border: '1px solid rgba(61,31,10,0.1)' }}
           >
-            <InfoRow icon="👥" text="You + 4 AI opponents (5 players)" />
-            <InfoRow icon="🎯" text="Most Victory Points through shipping, building, producing" />
-            <InfoRow icon="⏱️" text="~15–25 minutes per game" />
+            <InfoRow icon="👥" text={t('setup.players')} />
+            <InfoRow icon="🎯" text={t('setup.objective')} />
+            <InfoRow icon="⏱️" text={t('setup.duration')} />
           </div>
 
           {/* Start button */}
@@ -108,7 +113,7 @@ export default function SinglePlayerSetup() {
               textShadow: '0 1px 2px rgba(0,0,0,0.3)',
             }}
           >
-            Begin the Game
+            {t('setup.begin')}
           </button>
 
           {/* Back */}
@@ -116,7 +121,7 @@ export default function SinglePlayerSetup() {
             onClick={() => navigate('/lobby')}
             className="w-full mt-3 py-2 font-crimson text-[#5a2e10]/60 hover:text-[#5a2e10] text-sm transition-colors italic"
           >
-            ← Back to Lobby
+            {t('setup.back')}
           </button>
         </div>
 

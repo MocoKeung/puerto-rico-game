@@ -1,20 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../store/gameEngine';
 import { ResourceIcon, DoubloonIcon, VPIcon, ColonistIcon } from '../icons/ResourceIcons';
-import { RESOURCE_ORDER, RESOURCE_LABELS } from '../../data/constants';
+import { RESOURCE_ORDER } from '../../data/constants';
 
 interface ResourceBarProps {
   onToggleLog: () => void;
 }
 
 export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
+  const { t } = useTranslation();
   const player = useGameEngine(s => s.players[0]);
   const { vpSupply, colonistSupply, colonistShip } = useGameEngine();
 
   if (!player) return null;
 
   return (
-    // Part of the flex-column layout — no longer `fixed`, so it doesn't
-    // fight for z-index with the log drawer or other overlays.
     <div
       className="flex-shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]"
       style={{
@@ -22,19 +22,17 @@ export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
         borderTop: '1px solid rgba(201,135,12,0.3)',
       }}
     >
-      {/* Gold accent */}
       <div className="h-px bg-gradient-to-r from-transparent via-[#c9870c]/60 to-transparent" />
 
       <div className="max-w-screen-xl mx-auto px-4 py-2 flex items-center gap-3 flex-wrap">
 
         {/* Primary stats */}
         <div className="flex items-center gap-2">
-          <TokenBadge icon={<DoubloonIcon size={16} />} value={player.doubloons} label="coins" />
-          <TokenBadge icon={<VPIcon size={16} />} value={player.victoryPoints} label="VP" />
-          <TokenBadge icon={<ColonistIcon size={14} />} value={player.colonists} label="free" />
+          <TokenBadge icon={<DoubloonIcon size={16} />} value={player.doubloons} label={t('common.coins')} />
+          <TokenBadge icon={<VPIcon size={16} />} value={player.victoryPoints} label={t('common.vp')} />
+          <TokenBadge icon={<ColonistIcon size={14} />} value={player.colonists} label={t('common.free')} />
         </div>
 
-        {/* Divider */}
         <div className="h-5 w-px bg-[#c9870c]/25" />
 
         {/* Goods */}
@@ -52,7 +50,7 @@ export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
                 {player.goods[resource]}
               </span>
               <span className="text-[9px] text-white/40 font-crimson hidden sm:inline">
-                {RESOURCE_LABELS[resource]}
+                {t(`resources.${resource}`)}
               </span>
             </div>
           ))}
@@ -61,9 +59,9 @@ export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
         {/* Supply info + Log button */}
         <div className="ml-auto flex items-center gap-3">
           <div className="text-[9px] text-[#c9870c]/50 font-cinzel tracking-wide hidden md:flex items-center gap-1.5">
-            <span>VP: {vpSupply}</span>
+            <span>{t('common.vpSupply', { n: vpSupply })}</span>
             <span className="text-[#c9870c]/25">·</span>
-            <span>Colonists: {colonistSupply}+{colonistShip}⛵</span>
+            <span>{t('common.colonistSupply', { supply: colonistSupply, ship: colonistShip })}</span>
           </div>
 
           <button
@@ -71,7 +69,7 @@ export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-cinzel text-[#f0a830] tracking-wide transition-all duration-150 hover:bg-[#c9870c]/25 active:bg-[#c9870c]/35 focus:outline-none focus:ring-1 focus:ring-[#c9870c]/60"
             style={{ background: 'rgba(201,135,12,0.12)', border: '1px solid rgba(201,135,12,0.25)' }}
           >
-            📜 <span className="hidden xs:inline">Log</span>
+            📜 <span className="hidden sm:inline">{t('common.log')}</span>
           </button>
         </div>
       </div>

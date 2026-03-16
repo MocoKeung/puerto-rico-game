@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../store/gameEngine';
 
 interface GameLogProps {
@@ -7,10 +8,10 @@ interface GameLogProps {
 }
 
 export default function GameLog({ isOpen, onClose }: GameLogProps) {
+  const { t } = useTranslation();
   const gameLog = useGameEngine(s => s.gameLog);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new entries arrive and drawer is open
   useEffect(() => {
     if (isOpen && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -19,15 +20,10 @@ export default function GameLog({ isOpen, onClose }: GameLogProps) {
 
   return (
     <>
-      {/* Backdrop — covers only the content area (absolute, not fixed) */}
       {isOpen && (
-        <div
-          className="absolute inset-0 bg-black/40 z-20 backdrop-blur-[1px]"
-          onClick={onClose}
-        />
+        <div className="absolute inset-0 bg-black/40 z-20 backdrop-blur-[1px]" onClick={onClose} />
       )}
 
-      {/* Drawer panel — slides in from right, contained within content area */}
       <div
         className={`
           absolute top-0 right-0 h-full w-72 sm:w-80
@@ -50,7 +46,7 @@ export default function GameLog({ isOpen, onClose }: GameLogProps) {
           <div className="flex items-center gap-2">
             <span className="text-base">📜</span>
             <h2 className="font-cinzel font-bold text-[#f0a830] text-sm tracking-wider uppercase">
-              Game Log
+              {t('log.title')}
             </h2>
           </div>
           <button
@@ -62,17 +58,13 @@ export default function GameLog({ isOpen, onClose }: GameLogProps) {
           </button>
         </div>
 
-        {/* Gold accent line */}
         <div className="h-px flex-shrink-0 bg-gradient-to-r from-transparent via-[#c9870c]/50 to-transparent" />
 
-        {/* Log entries */}
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto p-3 space-y-1"
-        >
+        {/* Entries */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 space-y-1">
           {gameLog.length === 0 ? (
             <p className="text-center text-xs font-crimson italic text-[#5a2e10]/40 py-6">
-              No events yet.
+              {t('log.noEvents')}
             </p>
           ) : (
             gameLog.map((entry, i) => (
@@ -93,12 +85,12 @@ export default function GameLog({ isOpen, onClose }: GameLogProps) {
           )}
         </div>
 
-        {/* Footer entry count */}
+        {/* Footer */}
         <div
           className="flex-shrink-0 px-4 py-2 text-[10px] font-cinzel text-[#c9870c]/50 border-t tracking-wider"
           style={{ borderColor: 'rgba(201,135,12,0.2)' }}
         >
-          {gameLog.length} {gameLog.length === 1 ? 'event' : 'events'}
+          {t(gameLog.length === 1 ? 'log.events_one' : 'log.events_other', { count: gameLog.length })}
         </div>
       </div>
     </>

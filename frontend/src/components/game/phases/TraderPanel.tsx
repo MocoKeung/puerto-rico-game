@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../../store/gameEngine';
 import { ResourceIcon, DoubloonIcon } from '../../icons/ResourceIcons';
 import { RESOURCE_ORDER, RESOURCE_LABELS, TRADE_PRICES } from '../../../data/constants';
 
 export default function TraderPanel() {
+  const { t } = useTranslation();
   const { tradingHouse, traderSellGood, traderPass, waitingForHuman,
           players, activePlayerSeat, rolePickerSeat } = useGameEngine();
   const player = players[activePlayerSeat];
@@ -12,7 +14,7 @@ export default function TraderPanel() {
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="animate-bounce text-4xl mb-3">💰</div>
-          <p className="text-amber-600 font-medium">{player?.name} is trading...</p>
+          <p className="text-amber-600 font-medium">{t('trader.opponentTrading', { name: player?.name })}</p>
         </div>
       </div>
     );
@@ -31,24 +33,26 @@ export default function TraderPanel() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-amber-900">💰 Trader — Sell Goods</h2>
+          <h2 className="text-lg font-bold text-amber-900">{t('trader.title')}</h2>
           <p className="text-sm text-amber-600">
-            Sell one good to the trading house.
-            {tradeBonus > 0 && <strong> Bonus: +{tradeBonus} doubloon{tradeBonus > 1 ? 's' : ''}</strong>}
+            {t('trader.instructions')}
+            {tradeBonus > 0 && (
+              <strong> {tradeBonus === 1 ? t('trader.bonus', { n: tradeBonus }) : t('trader.bonusPlural', { n: tradeBonus })}</strong>
+            )}
           </p>
         </div>
         <button
           onClick={() => traderPass(0)}
           className="px-4 py-2 border-2 border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors text-sm font-medium"
         >
-          Pass
+          {t('common.pass')}
         </button>
       </div>
 
       {/* Trading House */}
       <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-4 mb-4">
         <h3 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">
-          Trading House ({tradingHouse.filter(s => s !== null).length}/4)
+          {t('trader.tradingHouse', { filled: tradingHouse.filter(s => s !== null).length })}
         </h3>
         <div className="grid grid-cols-4 gap-2">
           {tradingHouse.map((slot, i) => (
@@ -61,21 +65,21 @@ export default function TraderPanel() {
               {slot ? (
                 <div className="flex flex-col items-center">
                   <ResourceIcon type={slot} size={24} />
-                  <span className="text-[10px] text-amber-600 capitalize">{slot}</span>
+                  <span className="text-[10px] text-amber-600 capitalize">{t(`resources.${slot}`, { defaultValue: slot })}</span>
                 </div>
               ) : (
-                <span className="text-amber-300 text-xs">Empty</span>
+                <span className="text-amber-300 text-xs">{t('common.empty')}</span>
               )}
             </div>
           ))}
         </div>
         {houseFull && (
-          <p className="mt-2 text-xs text-red-500 font-medium">Trading house is full!</p>
+          <p className="mt-2 text-xs text-red-500 font-medium">{t('trader.houseFull')}</p>
         )}
       </div>
 
       {/* Your goods to sell */}
-      <h3 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">Your Goods</h3>
+      <h3 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">{t('trader.yourGoods')}</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
         {RESOURCE_ORDER.map(resource => {
           const qty = humanPlayer.goods[resource];
@@ -96,17 +100,17 @@ export default function TraderPanel() {
             >
               <div className="flex items-center gap-2 mb-1">
                 <ResourceIcon type={resource} size={24} />
-                <span className="font-bold text-amber-900">{RESOURCE_LABELS[resource]}</span>
+                <span className="font-bold text-amber-900">{t(`resources.${resource}`, { defaultValue: RESOURCE_LABELS[resource] })}</span>
                 <span className="text-xs text-amber-500">×{qty}</span>
               </div>
               <div className="flex items-center gap-1 text-sm">
-                <span className="text-emerald-600 font-bold">+{price} 💰</span>
+                <span className="text-emerald-600 font-bold">{t('trader.price', { price })}</span>
                 {tradeBonus > 0 && (
-                  <span className="text-[10px] text-amber-400">(base {TRADE_PRICES[resource]} + {tradeBonus} bonus)</span>
+                  <span className="text-[10px] text-amber-400">{t('trader.priceBreakdown', { base: TRADE_PRICES[resource], bonus: tradeBonus })}</span>
                 )}
               </div>
               {inHouse && !hasOffice && (
-                <p className="text-[10px] text-red-400 mt-1">Already in trading house</p>
+                <p className="text-[10px] text-red-400 mt-1">{t('trader.alreadyInHouse')}</p>
               )}
             </button>
           );

@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../../store/gameEngine';
 import RoleCard from '../RoleCard';
 
 export default function RoleSelectionPanel() {
+  const { t } = useTranslation();
   const { roles, selectRole, waitingForHuman } = useGameEngine();
 
   if (!waitingForHuman) {
@@ -10,7 +12,7 @@ export default function RoleSelectionPanel() {
         <div className="text-center space-y-3">
           <div className="w-12 h-12 mx-auto rounded-full border-2 border-[#c9870c]/40 border-t-[#c9870c] animate-spin" />
           <p className="text-[#5a2e10] font-cinzel text-sm tracking-wide">
-            Opponent is choosing…
+            {t('roleSelection.opponentChoosing')}
           </p>
         </div>
       </div>
@@ -22,10 +24,10 @@ export default function RoleSelectionPanel() {
       {/* Header */}
       <div className="mb-5 text-center">
         <h2 className="font-cinzel text-xl font-bold text-[#3d1f0a] tracking-wide">
-          Choose Your Role
+          {t('roleSelection.chooseRole')}
         </h2>
         <p className="font-crimson text-sm text-[#5a2e10] mt-1 italic">
-          Select a role to activate its privilege and action for all players.
+          {t('roleSelection.subtitle')}
         </p>
       </div>
 
@@ -43,7 +45,7 @@ export default function RoleSelectionPanel() {
       </div>
 
       <p className="text-center text-[10px] text-[#8a6a40] mt-1 font-crimson italic">
-        Scroll to see all roles →
+        {t('roleSelection.scroll')}
       </p>
     </div>
   );
