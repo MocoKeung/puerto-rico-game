@@ -4,17 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { PlayerState, PlantationTile, OwnedBuilding } from '../../store/gameEngine';
 import { ResourceIcon } from '../icons/ResourceIcons';
 import { RESOURCE_ORDER, RESOURCE_COLORS } from '../../data/constants';
-
-const BUILDING_IMAGES: Record<string, string> = {
-  small_indigo_plant:  '/images/buildings/small_indigo_plant.png',
-  small_sugar_mill:    '/images/buildings/small_sugar_mill.png',
-  tobacco_storage:     '/images/buildings/tobacco_storage.png',
-  coffee_roaster:      '/images/buildings/coffee_roaster.png',
-  small_market:        '/images/buildings/small_market.png',
-  hacienda:            '/images/buildings/hacienda.png',
-  construction_hut:    '/images/buildings/construction_hut.png',
-  small_warehouse:     '/images/buildings/small_warehouse.png',
-};
+import { BUILDING_IMAGES } from '../../data/buildingImages';
 
 const MAX_SLOTS = 12;
 
