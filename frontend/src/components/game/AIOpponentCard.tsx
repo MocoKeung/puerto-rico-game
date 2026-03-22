@@ -1,4 +1,4 @@
-import { Crown, Coins, Star, Users, Leaf, Building2, Package } from 'lucide-react';
+import { Crown, Coins, Star, Users, Leaf, Building2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { PlayerState } from '../../store/gameEngine';
 import { ResourceIcon } from '../icons/ResourceIcons';
@@ -18,92 +18,92 @@ export default function AIOpponentCard({ player, isActive, isGovernor, onClick }
 
   return (
     <div
-      className={`relative rounded-xl overflow-hidden transition-all duration-300 ${
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick?.(); }}
+      className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
         isActive
-          ? 'ring-2 ring-[#f0a830] shadow-[0_0_16px_rgba(240,168,48,0.35)] scale-[1.015]'
-          : 'ring-1 ring-white/8 hover:ring-[#f0a830]/40'
-      } ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
-      style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)' }}
+          ? 'ring-2 ring-[#f0a830] shadow-[0_0_20px_rgba(240,168,48,0.4)] scale-[1.02]'
+          : 'ring-1 ring-white/15 hover:ring-[#f0a830]/50'
+      } ${onClick ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : ''}`}
       onClick={onClick}
     >
-      {/* Name bar */}
+      {/* Name bar — player color */}
       <div
         className="px-3 py-2 flex items-center gap-2"
-        style={{ backgroundColor: player.color + 'dd' }}
+        style={{
+          background: `linear-gradient(135deg, ${player.color}ff, ${player.color}cc)`,
+          borderBottom: '1px solid rgba(0,0,0,0.15)',
+        }}
       >
-        {/* Avatar */}
         <div
-          className="w-7 h-7 rounded-full flex items-center justify-center font-cinzel font-bold text-[11px] text-white flex-shrink-0 shadow-inner"
-          style={{ backgroundColor: player.color, border: '2px solid rgba(255,255,255,0.25)' }}
+          className="w-7 h-7 rounded-full flex items-center justify-center font-cinzel font-black text-xs text-white flex-shrink-0 shadow"
+          style={{ background: 'rgba(0,0,0,0.25)', border: '2px solid rgba(255,255,255,0.5)' }}
         >
           {initials}
         </div>
-
         <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-hidden">
           {isGovernor && <Crown size={10} className="text-[#fde047] flex-shrink-0" strokeWidth={2.5} />}
-          <span className="font-cinzel font-bold text-white text-xs truncate">{player.name}</span>
-          {isActive && (
-            <span className="text-[9px] text-white/60 font-crimson italic flex-shrink-0 ml-auto">
-              {t('common.thinking')}
-            </span>
-          )}
+          <span className="font-cinzel font-black text-white text-sm truncate" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+            {player.name}
+          </span>
         </div>
+        {isActive && (
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Stats grid */}
-      <div className="px-3 pt-2 pb-1.5 space-y-2">
-        {/* 3 primary stats */}
+      {/* Stats — parchment background for readability */}
+      <div className="px-3 py-2 space-y-2" style={{ background: 'rgba(245,230,200,0.95)' }}>
+        {/* Primary stats row */}
         <div className="grid grid-cols-3 gap-1">
-          <MiniStat icon={<Coins size={11} className="text-[#fbbf24]" strokeWidth={2.5} />} value={player.doubloons} label={t('common.gold')} />
-          <MiniStat icon={<Star size={10} className="text-[#fbbf24]" strokeWidth={2.5} />} value={player.victoryPoints} label={t('common.vp')} />
-          <MiniStat icon={<Users size={10} className="text-[#fbbf24]" strokeWidth={2.5} />} value={player.colonists} label={t('common.col')} />
+          <SmallStat icon={<Coins size={10} className="text-[#c9870c]" strokeWidth={2.5} />} value={player.doubloons} />
+          <SmallStat icon={<Star size={10} className="text-[#c9870c]" strokeWidth={2.5} />} value={player.victoryPoints} />
+          <SmallStat icon={<Users size={10} className="text-[#c9870c]" strokeWidth={2.5} />} value={player.colonists} />
         </div>
 
-        {/* Board overview */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-0.5 text-white/50">
+        {/* Board counts */}
+        <div className="flex items-center justify-between px-1">
+          <span className="flex items-center gap-1 text-[#5a2e10]/70">
             <Leaf size={9} strokeWidth={2} />
-            <span className="text-[10px] font-cinzel ml-0.5">{player.plantations.length}</span>
-          </div>
-          <div className="flex items-center gap-0.5 text-white/50">
+            <span className="text-[10px] font-cinzel font-bold">{player.plantations.length}</span>
+          </span>
+          <span className="flex items-center gap-1 text-[#5a2e10]/70">
             <Building2 size={9} strokeWidth={2} />
-            <span className="text-[10px] font-cinzel ml-0.5">{player.buildings.length}</span>
+            <span className="text-[10px] font-cinzel font-bold">{player.buildings.length}</span>
+          </span>
+          {/* Goods tokens */}
+          <div className="flex items-center gap-1">
+            {RESOURCE_ORDER.map(r =>
+              player.goods[r] > 0 ? (
+                <div key={r} className="flex items-center gap-0.5">
+                  <ResourceIcon type={r} size={12} />
+                  <span className="text-[9px] font-bold text-[#3d1f0a] tabular-nums">{player.goods[r]}</span>
+                </div>
+              ) : null
+            )}
+            {totalGoods === 0 && (
+              <span className="text-[9px] text-[#5a2e10]/35 font-crimson italic">
+                {t('common.noGoods')}
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-0.5 text-white/50">
-            <Package size={9} strokeWidth={2} />
-            <span className="text-[10px] font-cinzel ml-0.5">{totalGoods}</span>
-          </div>
-        </div>
-
-        {/* Goods tokens row */}
-        <div className="flex items-center gap-1 min-h-[18px]">
-          {RESOURCE_ORDER.map(r =>
-            player.goods[r] > 0 ? (
-              <div key={r} className="flex items-center gap-0.5">
-                <ResourceIcon type={r} size={14} />
-                <span className="text-[10px] font-bold text-white/80 tabular-nums">{player.goods[r]}</span>
-              </div>
-            ) : null
-          )}
-          {totalGoods === 0 && (
-            <span className="text-[10px] text-white/20 font-crimson italic">
-              {t('common.noGoods')}
-            </span>
-          )}
         </div>
       </div>
     </div>
   );
 }
 
-function MiniStat({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
+function SmallStat({ icon, value }: { icon: React.ReactNode; value: number }) {
   return (
-    <div className="flex flex-col items-center bg-white/8 rounded-lg py-1 px-1 gap-0.5">
-      <div className="flex items-center gap-0.5">
-        {icon}
-        <span className="font-cinzel font-bold text-white text-xs tabular-nums leading-none">{value}</span>
-      </div>
-      <span className="text-[8px] text-white/35 font-cinzel uppercase tracking-wide leading-none">{label}</span>
+    <div className="flex items-center justify-center gap-1 py-1 rounded-lg" style={{ background: 'rgba(61,31,10,0.06)' }}>
+      {icon}
+      <span className="font-cinzel font-black text-[#3d1f0a] text-sm tabular-nums leading-none">{value}</span>
     </div>
   );
 }

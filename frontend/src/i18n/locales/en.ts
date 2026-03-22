@@ -27,6 +27,8 @@ const en = {
     vpSupply: 'VP: {{n}}',
     colonistSupply: 'Colonists: {{supply}}+{{ship}}⛵',
     doneShipping: 'Done Shipping',
+    plantations: 'Plantations',
+    buildings: 'Buildings',
   },
 
   resources: {

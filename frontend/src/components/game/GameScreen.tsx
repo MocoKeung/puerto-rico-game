@@ -9,6 +9,8 @@ import ActionPanel from './ActionPanel';
 import ResourceBar from './ResourceBar';
 import GameLog from './GameLog';
 import GameOverScreen from './GameOverScreen';
+import TurnSummaryToast from './TurnSummaryToast';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 export default function GameScreen() {
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ export default function GameScreen() {
   const state = useGameEngine();
   const {
     started, phase, activePlayerSeat, waitingForHuman, players,
+    lastAction,
     selectRole, settlerTakePlantation, builderBuyBuilding, builderPass,
     captainShipGoods, captainUseWharf, captainPass,
     traderSellGood, traderPass, craftsmanBonusGood,
@@ -49,7 +52,9 @@ export default function GameScreen() {
     if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
     aiTimerRef.current = setTimeout(runAI, AI_TURN_DELAY);
     return () => { if (aiTimerRef.current) clearTimeout(aiTimerRef.current); };
-  }, [phase, activePlayerSeat, waitingForHuman, runAI]);
+  // lastAction is included so the effect re-fires when an AI ships multiple times in the
+  // same turn (waitingForHuman stays false but lastAction changes, un-sticking the AI).
+  }, [phase, activePlayerSeat, waitingForHuman, lastAction, runAI]);
 
   if (!started) return null;
 
@@ -82,7 +87,9 @@ export default function GameScreen() {
               </div>
               {/* Action panel — right column, shown first on mobile */}
               <div className="col-span-12 md:col-span-7 order-1 md:order-2">
-                <ActionPanel />
+                <ErrorBoundary>
+                  <ActionPanel />
+                </ErrorBoundary>
               </div>
             </div>
           </div>
@@ -96,6 +103,10 @@ export default function GameScreen() {
       <ResourceBar onToggleLog={() => setLogOpen(!logOpen)} />
 
       {gameOverScores && <GameOverScreen />}
+
+      {/* Turn summary toast — shows what opponents did on their last turn */}
+      <TurnSummaryToast onOpenLog={() => setLogOpen(true)} />
+
     </div>
   );
 }

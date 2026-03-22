@@ -8,7 +8,7 @@ export default function AIOpponentBar() {
   const { t } = useTranslation();
   const { players, activePlayerSeat, governorSeat } = useGameEngine();
   const aiPlayers = players.filter(p => !p.isHuman);
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerState | null>(null);
+  const [selected, setSelected] = useState<PlayerState | null>(null);
 
   if (aiPlayers.length === 0) return null;
 
@@ -22,13 +22,12 @@ export default function AIOpponentBar() {
         className="flex-shrink-0 border-b"
         style={{
           background: 'rgba(12,53,71,0.88)',
-          backdropFilter: 'blur(8px)',
           borderColor: 'rgba(201,135,12,0.25)',
         }}
       >
         <div className="max-w-screen-xl mx-auto px-4 py-2">
           <div className="mb-1.5">
-            <span className="font-cinzel text-[9px] text-[#c9870c]/60 uppercase tracking-[0.22em]">
+            <span className="font-cinzel text-[11px] text-[#c9870c]/70 uppercase tracking-[0.22em]">
               {t('common.opponents')}
             </span>
           </div>
@@ -39,18 +38,19 @@ export default function AIOpponentBar() {
                 player={player}
                 isActive={player.seat === activePlayerSeat}
                 isGovernor={player.seat === governorSeat}
-                onClick={() => setSelectedPlayer(player)}
+                onClick={() => setSelected(player)}
               />
             ))}
           </div>
         </div>
       </div>
 
-      {selectedPlayer && (
+      {selected && (
         <OpponentDetailModal
-          player={selectedPlayer}
-          isGovernor={selectedPlayer.seat === governorSeat}
-          onClose={() => setSelectedPlayer(null)}
+          key={selected.seat}
+          player={selected}
+          isGovernor={selected.seat === governorSeat}
+          onClose={() => setSelected(null)}
         />
       )}
     </>

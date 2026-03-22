@@ -27,6 +27,8 @@ const zh = {
     vpSupply: 'VP: {{n}}',
     colonistSupply: '殖民者: {{supply}}+{{ship}}⛵',
     doneShipping: '完成运送',
+    plantations: '种植园',
+    buildings: '建筑',
   },
 
   resources: {

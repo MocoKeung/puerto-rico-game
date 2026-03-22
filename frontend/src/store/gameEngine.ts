@@ -191,6 +191,7 @@ export interface GameEngineActions {
   builderBuyBuilding: (seat: number, buildingId: string) => void;
   builderPass: (seat: number) => void;
   mayorAssignColonists: (seat: number, assignments: { plantations: boolean[]; buildings: number[] }) => void;
+  mayorConfirm: () => void;
   captainShipGoods: (seat: number, shipIndex: number, resource: ResourceType) => void;
   captainUseWharf: (seat: number, resource: ResourceType, amount: number) => void;
   captainPass: (seat: number) => void;
@@ -571,16 +572,28 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
     const actualShip = Math.min(newShipSize, newColonistSupply);
     newColonistSupply -= actualShip;
 
+    const humanExists = state.players.some(p => p.isHuman);
+
     set({
       players: newPlayers,
       colonistShip: actualShip,
       colonistSupply: newColonistSupply,
       lastAction: 'mayor',
+      // If a human player exists, pause so they can manually adjust their colonists
+      ...(humanExists ? { waitingForHuman: true, activePlayerSeat: 0 } : {}),
     });
 
-    get().addLog('Colonists distributed! Mayor phase complete.', null);
+    get().addLog('Colonists distributed! ' + (humanExists ? 'Adjust your placement and confirm.' : 'Mayor phase complete.'), null);
 
-    // Mayor phase auto-completes — check game end and advance
+    if (!humanExists) {
+      if (get().checkGameEnd()) return;
+      get().endRolePhase();
+    }
+  },
+
+  mayorConfirm: () => {
+    get().addLog('Colonist placement confirmed.', 0);
+    set({ waitingForHuman: false });
     if (get().checkGameEnd()) return;
     get().endRolePhase();
   },
@@ -678,7 +691,10 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
 
   craftsmanBonusGood: (seat, resource) => {
     const state = get();
-    if (state.goodsSupply[resource] <= 0) return;
+    if (state.goodsSupply[resource] <= 0) {
+      get().endRolePhase();
+      return;
+    }
 
     const newPlayers = [...state.players];
     const p = newPlayers[seat];
@@ -732,12 +748,15 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
     // shipped goods go back to supply
     newGoodsSupply[resource] += amount;
 
+    // Use a unique lastAction so the GameScreen useEffect always re-fires,
+    // even when an AI ships multiple consecutive times (same string would be
+    // a no-op dep change and would permanently stall the AI).
     set({
       ships: newShips,
       players: newPlayers,
       vpSupply: state.vpSupply - actualVP,
       goodsSupply: newGoodsSupply,
-      lastAction: 'captain_ship',
+      lastAction: `captain_ship_${Date.now()}`,
     });
 
     get().addLog(`${player.name} shipped ${amount} ${resource} (+${actualVP} VP)`, seat);
@@ -919,16 +938,36 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
   // ============================================================
   advanceToNextPlayer: () => {
     const state = get();
-    let nextSeat = (state.activePlayerSeat + 1) % state.playerCount;
+    const nextSeat = (state.activePlayerSeat + 1) % state.playerCount;
 
     // Check if we've gone all the way around back to role picker
     if (nextSeat === state.rolePickerSeat) {
-      // All players have acted — end role phase
-      if (state.phase === 'captain') {
+      // Captain phase: check if anyone can still ship before ending
+      if (state.phase === 'captain' || state.phase === 'captain_cleanup') {
+        const anyoneCanShip = state.players.some((_, s) => get().playerCanStillShip(s));
+        if (anyoneCanShip) {
+          // Continue another lap — move to role picker and let the normal flow continue
+          set({
+            activePlayerSeat: nextSeat,
+            waitingForHuman: state.players[nextSeat].isHuman,
+            lastAction: `captain_continue_${Date.now()}`,
+          });
+          return;
+        }
         get().captainCleanup();
       }
       get().endRolePhase();
       return;
+    }
+
+    // For the captain phase, auto-skip players who cannot ship (they'd just pass)
+    if (state.phase === 'captain' || state.phase === 'captain_cleanup') {
+      if (!get().playerCanStillShip(nextSeat) && !state.players[nextSeat].isHuman) {
+        // AI can't ship — skip them without stopping the flow
+        set({ activePlayerSeat: nextSeat, lastAction: `captain_skip_${Date.now()}` });
+        get().advanceToNextPlayer();
+        return;
+      }
     }
 
     set({

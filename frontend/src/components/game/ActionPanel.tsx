@@ -19,10 +19,10 @@ export default function ActionPanel() {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)] border"
+      className="rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] border"
       style={{ background: 'rgba(245,230,200,0.97)', borderColor: 'rgba(201,135,12,0.3)' }}
     >
-      <div className="h-1 bg-gradient-to-r from-transparent via-[#c9870c] to-transparent" />
+      <div className="h-1 rounded-t-3xl bg-gradient-to-r from-transparent via-[#c9870c] to-transparent" />
 
       <div className="p-4 sm:p-5 min-h-[320px]">
         {isAIThinking ? (

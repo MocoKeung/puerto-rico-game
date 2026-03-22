@@ -101,4 +101,9 @@
     0%, 80%, 100% { transform: translateY(0); }
     40%            { transform: translateY(-8px); }
   }
+
+  @keyframes shrink {
+    from { width: 100%; }
+    to   { width: 0%; }
+  }
 }

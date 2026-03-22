@@ -26,25 +26,24 @@ export default function GameHeader() {
         {/* Left: title + round */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-xl leading-none">🌴</span>
-            <h1 className="font-cinzel font-bold text-[#f0a830] text-base tracking-widest uppercase leading-none">
+            <h1 className="font-cinzel font-bold text-[#f0a830] text-lg tracking-widest uppercase leading-none">
               Puerto Rico
             </h1>
           </div>
           <div className="h-4 w-px bg-[#c9870c]/40" />
-          <span className="font-cinzel font-bold text-[#f0a830]/80 text-xs">
+          <span className="font-cinzel font-bold text-[#f0a830] text-sm">
             {t('common.round', { n: round })}
           </span>
         </div>
 
         {/* Center: phase pill */}
         <div className="flex items-center gap-2 mx-auto">
-          <div className="flex items-center gap-2 bg-white/8 border border-white/15 rounded-full px-4 py-1 backdrop-blur-sm">
-            <Swords size={12} className="text-[#c9870c]/70" />
-            <span className="text-[10px] text-white/50 font-cinzel tracking-[0.12em] uppercase">
+          <div className="flex items-center gap-2 rounded-full px-4 py-1.5" style={{ background: 'rgba(201,135,12,0.25)', border: '1px solid rgba(201,135,12,0.5)' }}>
+            <Swords size={13} className="text-[#f0a830]" />
+            <span className="text-[10px] text-[#f0a830]/80 font-cinzel tracking-[0.15em] uppercase">
               {t('common.phase')}
             </span>
-            <span className="font-cinzel font-bold text-white text-sm">{phaseLabel}</span>
+            <span className="font-cinzel font-bold text-[#f5d080] text-sm">{phaseLabel}</span>
           </div>
           {phase !== 'role_selection' && phase !== 'game_over' && rolePicker && (
             <div className="text-xs text-white/45 font-crimson italic hidden sm:block">
@@ -75,7 +74,7 @@ export default function GameHeader() {
               </span>
             </div>
           ) : (
-            <span className="text-white/45 font-crimson text-sm italic hidden md:block">
+            <span className="text-white/70 font-crimson text-sm italic hidden md:block">
               {t('common.turn', { name: activePlayer?.name })}
             </span>
           )}

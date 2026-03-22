@@ -35,14 +35,12 @@ export default function CaptainPanel() {
             {t('captain.mustShip')}
           </p>
         </div>
-        {!canShipAnything && (
-          <button
-            onClick={() => captainPass(0)}
-            className="px-4 py-2 border-2 border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors text-sm font-medium"
-          >
-            {t('common.doneShipping')}
-          </button>
-        )}
+        <button
+          onClick={() => captainPass(0)}
+          className="px-4 py-2 border-2 border-amber-300 text-amber-700 rounded-lg hover:bg-amber-50 transition-colors text-sm font-medium"
+        >
+          {canShipAnything ? t('common.doneShipping') : t('common.pass')}
+        </button>
       </div>
 
       {/* Ships */}

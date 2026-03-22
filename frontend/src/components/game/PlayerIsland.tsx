@@ -1,9 +1,23 @@
-import { Leaf, Building2, Users } from 'lucide-react';
+import { Leaf, Building2, Users, Coins, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useGameEngine from '../../store/gameEngine';
 import { ResourceIcon } from '../icons/ResourceIcons';
-import { RESOURCE_COLORS } from '../../data/constants';
+import { RESOURCE_COLORS, RESOURCE_ORDER } from '../../data/constants';
 import type { PlantationTile, OwnedBuilding } from '../../store/gameEngine';
+
+const BUILDING_IMAGES: Record<string, string> = {
+  small_indigo_plant:  '/images/buildings/small_indigo_plant.png',
+  small_sugar_mill:    '/images/buildings/small_sugar_mill.png',
+  tobacco_storage:     '/images/buildings/tobacco_storage.png',
+  coffee_roaster:      '/images/buildings/coffee_roaster.png',
+  small_market:        '/images/buildings/small_market.png',
+  hacienda:            '/images/buildings/hacienda.png',
+  construction_hut:    '/images/buildings/construction_hut.png',
+  small_warehouse:     '/images/buildings/small_warehouse.png',
+};
+
+const MAX_PLANTATION_SLOTS = 12;
+const MAX_CITY_SLOTS = 12;
 
 export default function PlayerIsland() {
   const { t } = useTranslation();
@@ -11,12 +25,62 @@ export default function PlayerIsland() {
   if (!player) return null;
 
   const usedSlots = player.buildings.reduce((s, b) => s + (b.def.size === 'large' ? 2 : 1), 0);
+  const remainingCitySlots = MAX_CITY_SLOTS - usedSlots;
+  const remainingPlantationSlots = MAX_PLANTATION_SLOTS - player.plantations.length;
 
   return (
     <div className="space-y-3">
-      {/* Plantations */}
+
+      {/* ── Coins & Resources ────────────────────────────────── */}
       <section
-        className="rounded-2xl overflow-hidden shadow-[0_6px_24px_rgba(0,0,0,0.25)]"
+        className="rounded-3xl overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
+        style={{ background: 'rgba(245,230,200,0.97)', border: '1px solid rgba(201,135,12,0.3)' }}
+      >
+        <div className="px-4 py-2.5 flex items-center gap-4">
+          {/* Doubloons — big & prominent */}
+          <div
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, rgba(201,135,12,0.2), rgba(201,135,12,0.1))', border: '1px solid rgba(201,135,12,0.4)' }}
+          >
+            <Coins size={20} className="text-[#c9870c]" strokeWidth={2} />
+            <span className="font-cinzel font-black text-[#3d1f0a] text-2xl tabular-nums leading-none">
+              {player.doubloons}
+            </span>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px self-stretch bg-[#c9870c]/20" />
+
+          {/* Resources — 5 slots */}
+          <div className="flex items-center gap-2 flex-1">
+            {RESOURCE_ORDER.map(r => {
+              const qty = player.goods[r];
+              return (
+                <div
+                  key={r}
+                  className="flex flex-col items-center gap-1 flex-1 py-2 rounded-xl transition-all"
+                  style={{
+                    background: qty > 0 ? `${RESOURCE_COLORS[r]}18` : 'rgba(61,31,10,0.03)',
+                    border: qty > 0 ? `1px solid ${RESOURCE_COLORS[r]}40` : '1px solid rgba(61,31,10,0.08)',
+                  }}
+                >
+                  <ResourceIcon type={r} size={20} />
+                  <span
+                    className="font-cinzel font-bold text-sm tabular-nums leading-none"
+                    style={{ color: qty > 0 ? '#3d1f0a' : 'rgba(61,31,10,0.25)' }}
+                  >
+                    {qty}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Plantations ──────────────────────────────────────── */}
+      <section
+        className="rounded-3xl overflow-hidden shadow-[0_6px_24px_rgba(0,0,0,0.2)]"
         style={{ background: 'rgba(245,230,200,0.97)', border: '1px solid rgba(45,106,79,0.25)' }}
       >
         <div className="px-4 py-2.5 flex items-center justify-between border-b border-[#2d6a4f]/15"
@@ -26,25 +90,30 @@ export default function PlayerIsland() {
             <Leaf size={13} strokeWidth={2.5} />
             {t('island.yourPlantations')}
           </h3>
-          <span className="font-cinzel text-[10px] text-[#2d6a4f]/60 bg-[#2d6a4f]/10 px-2 py-0.5 rounded-full">
-            {t('island.tiles', { n: player.plantations.length })}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-cinzel text-[10px] text-[#2d6a4f] font-bold">
+              {player.plantations.length}/{MAX_PLANTATION_SLOTS}
+            </span>
+            {remainingPlantationSlots > 0 && (
+              <span className="font-cinzel text-[9px] text-[#2d6a4f]/60 bg-[#2d6a4f]/10 px-2 py-0.5 rounded-full">
+                {remainingPlantationSlots} left
+              </span>
+            )}
+          </div>
         </div>
-        <div className="p-3 grid grid-cols-4 sm:grid-cols-5 xl:grid-cols-6 gap-2">
+        <div className="p-3 grid grid-cols-4 xl:grid-cols-6 gap-2">
           {player.plantations.map((tile, i) => (
             <PlantationTileView key={i} tile={tile} />
           ))}
-          {player.plantations.length === 0 && (
-            <p className="col-span-full text-center text-xs text-[#5a2e10]/35 font-crimson italic py-6">
-              {t('island.noPlantations')}
-            </p>
-          )}
+          {Array.from({ length: remainingPlantationSlots }).map((_, i) => (
+            <EmptySlot key={`empty-p-${i}`} color="#2d6a4f" />
+          ))}
         </div>
       </section>
 
-      {/* Buildings */}
+      {/* ── City / Buildings ──────────────────────────────────── */}
       <section
-        className="rounded-2xl overflow-hidden shadow-[0_6px_24px_rgba(0,0,0,0.25)]"
+        className="rounded-3xl overflow-hidden shadow-[0_6px_24px_rgba(0,0,0,0.2)]"
         style={{ background: 'rgba(245,230,200,0.97)', border: '1px solid rgba(90,46,16,0.2)' }}
       >
         <div className="px-4 py-2.5 flex items-center justify-between border-b border-[#5a2e10]/12"
@@ -54,22 +123,41 @@ export default function PlayerIsland() {
             <Building2 size={13} strokeWidth={2.5} />
             {t('island.yourCity')}
           </h3>
-          <span className="font-cinzel text-[10px] text-[#5a2e10]/60 bg-[#5a2e10]/8 px-2 py-0.5 rounded-full">
-            {t('island.slots', { used: usedSlots })}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-cinzel text-[10px] text-[#5a2e10] font-bold">
+              {usedSlots}/{MAX_CITY_SLOTS}
+            </span>
+            {remainingCitySlots > 0 && (
+              <span className="font-cinzel text-[9px] text-[#5a2e10]/60 bg-[#5a2e10]/08 px-2 py-0.5 rounded-full">
+                {remainingCitySlots} left
+              </span>
+            )}
+          </div>
         </div>
-        <div className="p-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="p-3 grid grid-cols-4 gap-2 items-start">
           {player.buildings.map((building, i) => (
             <BuildingTileView key={i} building={building} />
           ))}
-          {player.buildings.length === 0 && (
-            <p className="col-span-full text-center text-xs text-[#5a2e10]/35 font-crimson italic py-6">
-              {t('island.noBuildings')}
-            </p>
-          )}
+          {/* Show all remaining city slots — aspectRatio matches BuildingTileView's 3/4 card */}
+          {Array.from({ length: remainingCitySlots }).map((_, i) => (
+            <EmptySlot key={`empty-b-${i}`} color="#5a2e10" aspectRatio="3/4" />
+          ))}
         </div>
       </section>
     </div>
+  );
+}
+
+function EmptySlot({ color, aspectRatio }: { color: string; aspectRatio?: string }) {
+  return (
+    <div
+      className="rounded-xl"
+      style={{
+        border: `1.5px dashed ${color}22`,
+        background: `${color}04`,
+        ...(aspectRatio ? { aspectRatio } : { height: 62 }),
+      }}
+    />
   );
 }
 
@@ -90,17 +178,13 @@ function PlantationTileView({ tile }: { tile: PlantationTile }) {
       }}
       title={`${tile.type}${hasColonist ? ' (colonized)' : ''}`}
     >
-      {/* Resource token icon */}
       <ResourceIcon type={tile.type} size={28} />
-
       <span className="text-[9px] font-cinzel text-[#3d1f0a]/65 capitalize leading-none text-center">
         {t(`resources.${tile.type}`, { defaultValue: tile.type })}
       </span>
-
-      {/* Colonist dot */}
       {hasColonist && (
         <div
-          className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full flex items-center justify-center shadow"
+          className="absolute -top-1.5 -right-1.5 rounded-full flex items-center justify-center shadow"
           style={{ backgroundColor: '#c9870c', border: '1.5px solid #f0a830', width: 16, height: 16 }}
         >
           <Users size={8} className="text-white" strokeWidth={2.5} />
@@ -111,71 +195,74 @@ function PlantationTileView({ tile }: { tile: PlantationTile }) {
 }
 
 function BuildingTileView({ building }: { building: OwnedBuilding }) {
-  const { t } = useTranslation();
   const isProduction = building.def.category === 'production';
+  const isLarge = building.def.size === 'large';
   const accent = isProduction ? '#1e3a5f' : '#4a1d7a';
-  const accentMid = isProduction ? '#2a5aab' : '#7c3fc0';
+  const accentLight = isProduction ? '#2a5aab' : '#7c3fc0';
+  const image = BUILDING_IMAGES[building.def.id];
 
   return (
     <div
-      className="rounded-xl p-2.5 transition-all duration-200 relative overflow-hidden"
-      style={{
-        background: `linear-gradient(135deg, ${accent}14, ${accentMid}0c)`,
-        border: `1px solid ${accent}35`,
-      }}
+      className={`rounded-2xl overflow-hidden relative flex flex-col ${isLarge ? 'col-span-2' : ''}`}
+      style={{ border: `1.5px solid ${accent}50`, background: '#f5e6c8' }}
     >
-      {/* Header row */}
-      <div className="flex items-start justify-between gap-1 mb-2">
-        <span className="font-cinzel font-bold text-[#3d1f0a] text-[10px] leading-tight flex-1">
+      {/* Image — portrait card displayed with object-contain so whole card is visible */}
+      <div
+        className="relative flex items-center justify-center overflow-hidden"
+        style={{ background: `${accent}18`, aspectRatio: '3/4', maxHeight: 180 }}
+      >
+        {image ? (
+          <img
+            src={image}
+            alt={building.def.name}
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <div className="flex items-center justify-center w-full h-full">
+            {building.def.productionType
+              ? <ResourceIcon type={building.def.productionType} size={44} />
+              : <Star size={36} className="text-amber-400" strokeWidth={1.5} />
+            }
+          </div>
+        )}
+        {/* VP badge */}
+        <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 bg-black/55 text-white text-[9px] font-cinzel px-1.5 py-0.5 rounded-full">
+          <Star size={7} strokeWidth={2.5} className="text-[#f0a830]" />{building.def.vp}
+        </div>
+        {/* Production icon */}
+        {building.def.productionType && (
+          <div className="absolute top-1.5 left-1.5">
+            <ResourceIcon type={building.def.productionType} size={14} />
+          </div>
+        )}
+      </div>
+
+      {/* Info area */}
+      <div className="px-2 pt-1 pb-1.5 flex flex-col gap-1">
+        <span className="font-cinzel font-bold text-[#3d1f0a] text-[10px] leading-tight line-clamp-1">
           {building.def.name}
         </span>
-        <span
-          className="font-cinzel text-[10px] font-bold flex-shrink-0 flex items-center gap-0.5"
-          style={{ color: '#c9870c' }}
-        >
-          <Star size={8} strokeWidth={2.5} style={{ color: '#c9870c' }} />
-          {building.def.vp}
-        </span>
-      </div>
-
-      {/* Production type */}
-      {building.def.productionType && (
-        <div className="flex items-center gap-1.5 mb-2">
-          <ResourceIcon type={building.def.productionType} size={16} />
-          <span className="text-[9px] text-[#5a2e10]/60 font-crimson capitalize">
-            {t(`resources.${building.def.productionType}`, { defaultValue: building.def.productionType })}
-          </span>
-        </div>
-      )}
-
-      {/* Worker slots */}
-      <div className="flex items-center gap-1 flex-wrap">
-        {Array.from({ length: building.def.maxColonists }).map((_, i) => (
-          <div
-            key={i}
-            className="w-3.5 h-3.5 rounded-full border-2 transition-all duration-200 flex items-center justify-center"
-            style={{
-              backgroundColor: i < building.colonists ? '#c9870c' : 'transparent',
-              borderColor: i < building.colonists ? '#f0a830' : '#c9870c33',
-            }}
-          >
-            {i < building.colonists && <Users size={6} className="text-white" strokeWidth={3} />}
+        {/* Colonist slots */}
+        {building.def.maxColonists > 0 && (
+          <div className="flex items-center gap-1 flex-wrap">
+            {Array.from({ length: building.def.maxColonists }).map((_, i) => (
+              <div
+                key={i}
+                className="w-3 h-3 rounded-full border flex items-center justify-center flex-shrink-0"
+                style={{
+                  backgroundColor: i < building.colonists ? accentLight : 'transparent',
+                  borderColor: i < building.colonists ? accentLight : `${accent}44`,
+                }}
+              >
+                {i < building.colonists && <Users size={5} className="text-white" strokeWidth={3} />}
+              </div>
+            ))}
+            <span className="text-[9px] font-cinzel text-[#5a2e10]/50 ml-0.5">
+              {building.colonists}/{building.def.maxColonists}
+            </span>
           </div>
-        ))}
-        <span
-          className="ml-auto text-[8px] font-cinzel px-1.5 py-0.5 rounded-sm"
-          style={{ background: `${accent}20`, color: accent }}
-        >
-          {isProduction ? 'PROD' : 'SPEC'}
-        </span>
+        )}
       </div>
-
-      {/* Description for violet buildings */}
-      {building.def.category === 'violet' && building.def.description && (
-        <p className="mt-1.5 text-[8px] text-[#5a2e10]/55 font-crimson italic leading-snug line-clamp-2">
-          {building.def.description}
-        </p>
-      )}
     </div>
   );
 }
