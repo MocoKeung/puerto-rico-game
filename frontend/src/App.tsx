@@ -8,12 +8,17 @@ import SinglePlayerSetup from './pages/SinglePlayerSetup';
 import GameScreen from './components/game/GameScreen';
 import LoadingScreen from './components/LoadingScreen';
 
-// Auth disabled for testing — remove these bypasses when re-enabling login
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (user) return <Navigate to="/lobby" replace />;
   return <>{children}</>;
 }
 
@@ -21,7 +26,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/lobby" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
         <Route
           path="/login"

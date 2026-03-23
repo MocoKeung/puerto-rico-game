@@ -74,6 +74,14 @@ export function useAuth() {
     return data;
   }
 
+  async function signInWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/lobby' },
+    });
+    if (error) throw error;
+  }
+
   async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -95,6 +103,7 @@ export function useAuth() {
   return {
     ...state,
     signIn,
+    signInWithGoogle,
     signUp,
     signOut,
     updateProfile,
