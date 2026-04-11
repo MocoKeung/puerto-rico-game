@@ -1,14 +1,14 @@
 import { Ship, Anchor } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../../store/gameEngine';
+import { useGameContext } from '../../../contexts/GameContext';
 import { ResourceIcon, ShipIcon } from '../../icons/ResourceIcons';
 import { RESOURCE_ORDER, RESOURCE_LABELS } from '../../../data/constants';
 
 export default function CaptainPanel() {
   const { t } = useTranslation();
   const { ships, captainShipGoods, captainPass, captainUseWharf, waitingForHuman,
-          players, activePlayerSeat, getAvailableShipsForResource } = useGameEngine();
-  const player = players[activePlayerSeat];
+          players, activePlayerSeat, getAvailableShipsForResource } = useGameContext();
+  const player = players.find(p => p.seat === activePlayerSeat);
 
   if (!waitingForHuman) {
     return (

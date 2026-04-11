@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
 
 interface GameLogProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface GameLogProps {
 
 export default function GameLog({ isOpen, onClose }: GameLogProps) {
   const { t } = useTranslation();
-  const gameLog = useGameEngine(s => s.gameLog);
+  const gameLog = useGameContext(s => s.gameLog);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

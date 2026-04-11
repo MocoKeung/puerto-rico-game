@@ -1,4 +1,4 @@
-import type { ResourceType, PlantationType } from '../../data/constants';
+import type { PlantationType } from '../../data/constants';
 
 interface IconProps {
   size?: number;

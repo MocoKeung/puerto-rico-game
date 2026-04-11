@@ -15,10 +15,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -28,10 +25,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const authClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
+      global: { headers: { Authorization: authHeader } },
+    });
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    } = await authClient.auth.getUser();
 
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -39,6 +39,8 @@ Deno.serve(async (req: Request) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    const supabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
 
     const { game_id } = await req.json();
     if (!game_id) {
@@ -86,6 +88,20 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    // Randomly pick who goes first (governor)
+    const governorSeat = Math.floor(Math.random() * playerCount);
+
+    // Update the governor flag on players
+    for (const p of players) {
+      const isGov = p.seat_order === governorSeat;
+      if (p.is_governor !== isGov) {
+        await supabase
+          .from('game_players')
+          .update({ is_governor: isGov })
+          .eq('id', p.id);
+      }
+    }
+
     // Build initial game state
     const plantationDeck = generatePlantationDeck();
     const visibleCount = playerCount + 1; // visible choices = player count + 1
@@ -98,9 +114,9 @@ Deno.serve(async (req: Request) => {
       game_id,
       round: 1,
       phase: 'role_selection',
-      current_player_seat: 0,
-      governor_seat: 0,
-      roles_available: getInitialRolesAvailable(),
+      current_player_seat: governorSeat,
+      governor_seat: governorSeat,
+      roles_available: getInitialRolesAvailable(playerCount),
       roles_selected: {},
       ships: getInitialShips(playerCount),
       trading_house: [],

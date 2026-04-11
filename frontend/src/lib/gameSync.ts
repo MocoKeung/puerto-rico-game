@@ -19,9 +19,21 @@ export function subscribeToGame(
 ): () => void {
   const channels: RealtimeChannel[] = [];
 
-  // 1. Subscribe to game_states updates (primary state broadcast)
+  // 1. Subscribe to game_states updates (INSERT + UPDATE)
   const stateChannel = supabase
     .channel(`game_states:${gameId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'game_states',
+        filter: `game_id=eq.${gameId}`,
+      },
+      (payload) => {
+        callbacks.onGameStateUpdate?.(payload.new as GameState);
+      },
+    )
     .on(
       'postgres_changes',
       {

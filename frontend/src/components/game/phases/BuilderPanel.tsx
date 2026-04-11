@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
 import { Hammer, Star, Coins, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../../store/gameEngine';
+import { useGameContext } from '../../../contexts/GameContext';
+import type { PlayerState } from '../../../store/gameEngine';
 import { ResourceIcon } from '../../icons/ResourceIcons';
 import { ALL_BUILDINGS, type BuildingDef } from '../../../data/buildings';
 import { BUILDING_IMAGES } from '../../../data/buildingImages';
@@ -9,8 +10,8 @@ import { BUILDING_IMAGES } from '../../../data/buildingImages';
 export default function BuilderPanel() {
   const { t } = useTranslation();
   const { builderBuyBuilding, builderPass, waitingForHuman, players, activePlayerSeat,
-          rolePickerSeat, buildingSupply } = useGameEngine();
-  const player = players[activePlayerSeat];
+          rolePickerSeat, buildingSupply } = useGameContext();
+  const player = players.find(p => p.seat === activePlayerSeat);
   const isBuilder = activePlayerSeat === rolePickerSeat;
 
   if (!waitingForHuman) {
@@ -99,7 +100,7 @@ function BuildingCarousel({
   title: string;
   buildings: BuildingDef[];
   supply: Record<string, number>;
-  humanPlayer: ReturnType<typeof useGameEngine.getState>['players'][0];
+  humanPlayer: PlayerState;
   discount: number;
   usedSlots: number;
   onBuy: (id: string) => void;

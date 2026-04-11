@@ -1,7 +1,7 @@
 import type { GameEngineState } from '../store/gameEngine';
 import { ALL_BUILDINGS } from '../data/buildings';
 import {
-  type ResourceType, type RoleType, type Difficulty,
+  type ResourceType, type RoleType,
   RESOURCE_ORDER, TRADE_PRICES,
 } from '../data/constants';
 

@@ -418,7 +418,7 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
       plantations: [...player.plantations, newPlantation],
     };
 
-    let newVisible = [...state.visiblePlantations];
+    const newVisible = [...state.visiblePlantations];
     let newQuarries = state.quarriesRemaining;
     let newColonistSupply = state.colonistSupply;
 
@@ -508,7 +508,7 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
 
     // 1. Distribute colonists from ship (1 each, starting with role picker)
     let remaining = state.colonistShip;
-    let seatOrder = [];
+    const seatOrder: number[] = [];
     for (let i = 0; i < state.playerCount; i++) {
       seatOrder.push((rolePickerSeat + i) % state.playerCount);
     }
@@ -634,7 +634,6 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
     const state = get();
     const newPlayers = [...state.players];
     const newGoodsSupply = { ...state.goodsSupply };
-    let typesProducedByPicker = 0;
 
     // Produce for all players
     for (let i = 0; i < state.playerCount; i++) {
@@ -655,10 +654,6 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
       }
 
       newPlayers[seat] = { ...p, goods: newGoods };
-
-      if (seat === rolePickerSeat) {
-        typesProducedByPicker = typesProduced;
-      }
 
       // Factory bonus
       if (getOccupiedBuildingAbility(p, 'factory') && typesProduced > 0) {
@@ -795,7 +790,7 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
     get().advanceToNextPlayer();
   },
 
-  captainPass: (seat) => {
+  captainPass: (_seat) => {
     get().advanceToNextPlayer();
   },
 
@@ -813,7 +808,7 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
         if (ship.filled >= ship.capacity) continue;
         if (ship.cargoType === null || ship.cargoType === resource) {
           // Check no other ship already carries this type
-          const otherShipHasType = state.ships.some((s, i) =>
+          const otherShipHasType = state.ships.some((s) =>
             s.cargoType === resource && s !== ship
           );
           if (!otherShipHasType || ship.cargoType === resource) return true;
@@ -983,7 +978,6 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
     if (get().checkGameEnd()) return;
 
     // Check if all roles selected this round
-    const totalRoles = state.roles.length;
     if (state.rolesSelectedThisRound >= state.playerCount) {
       // End of round — advance governor, reset roles
       get().advanceRound();

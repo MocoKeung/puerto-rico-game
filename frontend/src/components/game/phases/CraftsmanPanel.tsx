@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../../store/gameEngine';
+import { useGameContext } from '../../../contexts/GameContext';
 import { ResourceIcon } from '../../icons/ResourceIcons';
 import { RESOURCE_ORDER, RESOURCE_LABELS } from '../../../data/constants';
 
 export default function CraftsmanPanel() {
   const { t } = useTranslation();
-  const { waitingForHuman, craftsmanBonusGood, players, goodsSupply } = useGameEngine();
+  const { waitingForHuman, craftsmanBonusGood, players, goodsSupply } = useGameContext();
   const humanPlayer = players[0];
 
   // Craftsman auto-produces. If waitingForHuman, it means we need bonus good choice.

@@ -16,13 +16,16 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
 
-    // Authenticate the calling user
+    // Log env availability for debugging
+    console.log('ENV check:', { hasUrl: !!supabaseUrl, hasServiceKey: !!serviceRoleKey, hasAnonKey: !!anonKey });
+
     const authHeader = req.headers.get('Authorization');
+    console.log('Auth header present:', !!authHeader, authHeader?.substring(0, 20));
+
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
         status: 401,
@@ -30,13 +33,22 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const jwt = authHeader.replace('Bearer ', '');
+
+    // Use service role client to verify the JWT
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    } = await supabase.auth.getUser(jwt);
+
+    console.log('Auth result:', { userId: user?.id, error: authError?.message });
 
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      return new Response(JSON.stringify({
+        error: 'Unauthorized',
+        detail: authError?.message ?? 'No user returned',
+      }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -87,7 +99,11 @@ Deno.serve(async (req: Request) => {
         seat_order: 0,
         is_governor: true,
         doubloons: playerCount === 3 ? 2 : 3,
+        victory_points: 0,
+        colonists: 0,
         plantations: [{ type: startPlantation, colonized: false }],
+        buildings: [],
+        goods: { corn: 0, indigo: 0, sugar: 0, tobacco: 0, coffee: 0 },
       })
       .select()
       .single();

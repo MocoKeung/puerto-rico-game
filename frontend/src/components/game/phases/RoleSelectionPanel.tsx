@@ -1,12 +1,12 @@
 import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import useGameEngine from '../../../store/gameEngine';
+import { useGameContext } from '../../../contexts/GameContext';
 import RoleCard from '../RoleCard';
 
 export default function RoleSelectionPanel() {
   const { t } = useTranslation();
-  const { roles, selectRole, waitingForHuman } = useGameEngine();
+  const { roles, selectRole, waitingForHuman } = useGameContext();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -95,7 +95,7 @@ export default function RoleSelectionPanel() {
         {/* Scrollable cards */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-2 snap-x snap-mandatory justify-center"
+          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-2 snap-x snap-mandatory"
         >
           {roles.map((role, i) => (
             <div key={role.type} className="snap-center">

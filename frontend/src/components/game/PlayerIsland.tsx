@@ -1,6 +1,6 @@
 import { Leaf, Building2, Users, Coins, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
 import { ResourceIcon } from '../icons/ResourceIcons';
 import { RESOURCE_COLORS, RESOURCE_ORDER } from '../../data/constants';
 import { BUILDING_IMAGES } from '../../data/buildingImages';
@@ -11,7 +11,7 @@ const MAX_CITY_SLOTS = 12;
 
 export default function PlayerIsland() {
   const { t } = useTranslation();
-  const player = useGameEngine(s => s.players[0]);
+  const player = useGameContext(s => s.players[0]);
   if (!player) return null;
 
   const usedSlots = player.buildings.reduce((s, b) => s + (b.def.size === 'large' ? 2 : 1), 0);

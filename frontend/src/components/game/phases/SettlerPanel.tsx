@@ -1,13 +1,13 @@
 import { Leaf } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../../store/gameEngine';
+import { useGameContext } from '../../../contexts/GameContext';
 import { ResourceIcon } from '../../icons/ResourceIcons';
 
 export default function SettlerPanel() {
   const { t } = useTranslation();
   const { visiblePlantations, quarriesRemaining, settlerTakePlantation, waitingForHuman,
-          rolePickerSeat, activePlayerSeat, players } = useGameEngine();
-  const player = players[activePlayerSeat];
+          rolePickerSeat, activePlayerSeat, players } = useGameContext();
+  const player = players.find(p => p.seat === activePlayerSeat);
   const isRolePicker = activePlayerSeat === rolePickerSeat;
 
   if (!waitingForHuman) {

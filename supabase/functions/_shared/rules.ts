@@ -100,9 +100,18 @@ export const ALL_ROLES: Role[] = [
   'mayor',
   'builder',
   'craftsman',
+  'trader',
   'captain',
   'prospector',
 ];
+
+/** How many roles are selected per round, by player count */
+export const ROLES_PER_ROUND: Record<number, number> = {
+  2: 6, // each player picks 3
+  3: 3,
+  4: 4,
+  5: 5,
+};
 
 export const COLONISTS_BY_PLAYER_COUNT: Record<number, number> = {
   2: 40,
@@ -118,8 +127,12 @@ export const VP_TOKENS_BY_PLAYER_COUNT: Record<number, number> = {
   5: 75,
 };
 
-export function getInitialRolesAvailable(): RoleAvailable[] {
-  return ALL_ROLES.map((role) => ({ role, doubloons_bonus: 0 }));
+export function getInitialRolesAvailable(playerCount?: number): RoleAvailable[] {
+  // 3 players: 6 roles (no prospector); 4-5 players & 2 players: 7 roles (with prospector)
+  const roles: Role[] = playerCount === 3
+    ? ['settler', 'builder', 'mayor', 'craftsman', 'trader', 'captain']
+    : ['settler', 'builder', 'mayor', 'craftsman', 'trader', 'captain', 'prospector'];
+  return roles.map((role) => ({ role, doubloons_bonus: 0 }));
 }
 
 export function getInitialBuildings(): Record<Building, number> {

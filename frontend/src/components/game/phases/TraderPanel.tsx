@@ -1,14 +1,14 @@
 import { Coins, Store } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../../store/gameEngine';
+import { useGameContext } from '../../../contexts/GameContext';
 import { ResourceIcon } from '../../icons/ResourceIcons';
 import { RESOURCE_ORDER, RESOURCE_LABELS, TRADE_PRICES } from '../../../data/constants';
 
 export default function TraderPanel() {
   const { t } = useTranslation();
   const { tradingHouse, traderSellGood, traderPass, waitingForHuman,
-          players, activePlayerSeat, rolePickerSeat } = useGameEngine();
-  const player = players[activePlayerSeat];
+          players, activePlayerSeat, rolePickerSeat } = useGameContext();
+  const player = players.find(p => p.seat === activePlayerSeat);
 
   if (!waitingForHuman) {
     return (

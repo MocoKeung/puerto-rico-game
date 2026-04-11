@@ -20,19 +20,24 @@ export default function LobbyPage() {
   const [showCreate, setShowCreate] = useState(false);
 
   const fetchOpenGames = useCallback(async () => {
+    // Only show rooms created in the last 2 hours
+    const cutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
     const { data } = await supabase
       .from('games')
       .select('*, game_players(count)')
       .eq('status', 'waiting')
+      .gte('created_at', cutoff)
       .order('created_at', { ascending: false })
       .limit(20);
     if (data) {
-      setOpenGames(
-        data.map((g: Game & { game_players: { count: number }[] }) => ({
+      const games = data
+        .map((g: Game & { game_players: { count: number }[] }) => ({
           ...g,
           player_count: g.game_players?.[0]?.count ?? 0,
-        })),
-      );
+        }))
+        // Hide rooms with 0 players (abandoned)
+        .filter(g => g.player_count > 0);
+      setOpenGames(games);
     }
   }, []);
 

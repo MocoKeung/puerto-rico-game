@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine, { type PlayerState } from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
+import type { PlayerState } from '../../store/gameEngine';
 import AIOpponentCard from './AIOpponentCard';
 import OpponentDetailModal from './OpponentDetailModal';
 
 export default function AIOpponentBar() {
   const { t } = useTranslation();
-  const { players, activePlayerSeat, governorSeat } = useGameEngine();
+  const { players, activePlayerSeat, governorSeat } = useGameContext();
   const aiPlayers = players.filter(p => !p.isHuman);
   const [selected, setSelected] = useState<PlayerState | null>(null);
 

@@ -1,14 +1,14 @@
 import { Crown, Swords } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
 import LanguageToggle from '../ui/LanguageToggle';
 
 export default function GameHeader() {
   const { t } = useTranslation();
-  const { round, phase, governorSeat, activePlayerSeat, players, rolePickerSeat } = useGameEngine();
-  const governor = players[governorSeat];
-  const activePlayer = players[activePlayerSeat];
-  const rolePicker = players[rolePickerSeat];
+  const { round, phase, governorSeat, activePlayerSeat, players, rolePickerSeat } = useGameContext();
+  const governor = players.find(p => p.seat === governorSeat);
+  const activePlayer = players.find(p => p.seat === activePlayerSeat);
+  const rolePicker = players.find(p => p.seat === rolePickerSeat);
 
   const phaseLabel = t(`roles.${phase}`, { defaultValue: phase });
   const isYourTurn = activePlayer?.isHuman;

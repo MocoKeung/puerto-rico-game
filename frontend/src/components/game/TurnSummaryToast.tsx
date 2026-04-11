@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 import { X, ScrollText } from 'lucide-react';
-import useGameEngine from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
 
 interface TurnSummaryToastProps {
   onOpenLog: () => void;
@@ -21,7 +21,7 @@ const PLAYER_COLORS: Record<number, string> = {
 };
 
 export default function TurnSummaryToast({ onOpenLog }: TurnSummaryToastProps) {
-  const { waitingForHuman, gameLog, players } = useGameEngine();
+  const { waitingForHuman, gameLog, players } = useGameContext();
   const [visible, setVisible] = useState(false);
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const prevWaitingRef = useRef(false);

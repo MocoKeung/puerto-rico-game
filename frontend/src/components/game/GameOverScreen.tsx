@@ -1,12 +1,12 @@
 import { Trophy, Building2, Ship, Star, RotateCcw, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function GameOverScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { gameOverScores, players, initGame, difficulty } = useGameEngine();
+  const { gameOverScores, players, initGame, difficulty } = useGameContext();
 
   if (!gameOverScores) return null;
 

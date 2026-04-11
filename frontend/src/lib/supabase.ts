@@ -27,31 +27,22 @@ export async function callEdgeFunction<T = unknown>(
   functionName: string,
   body: Record<string, unknown>,
 ): Promise<T> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session) {
+  // Force a fresh token by calling getUser() which validates with the server
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
     throw new Error('Not authenticated');
   }
 
-  const response = await fetch(
-    `${supabaseUrl}/functions/v1/${functionName}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.access_token}`,
-        apikey: supabaseAnonKey,
-      },
-      body: JSON.stringify(body),
-    },
-  );
+  const { data, error } = await supabase.functions.invoke(functionName, {
+    body,
+  });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error ?? `Edge function ${functionName} failed`);
+  if (error) {
+    // Try to parse error details from the response
+    const msg = typeof error === 'object' && 'message' in error
+      ? error.message
+      : `Edge function ${functionName} failed`;
+    throw new Error(msg);
   }
 
   return data as T;

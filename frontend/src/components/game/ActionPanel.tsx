@@ -1,6 +1,6 @@
 import { Trophy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
 import RoleSelectionPanel from './phases/RoleSelectionPanel';
 import SettlerPanel from './phases/SettlerPanel';
 import BuilderPanel from './phases/BuilderPanel';
@@ -12,9 +12,9 @@ import ProspectorPanel from './phases/ProspectorPanel';
 
 export default function ActionPanel() {
   const { t } = useTranslation();
-  const { phase, waitingForHuman, activePlayerSeat, players } = useGameEngine();
+  const { phase, waitingForHuman, activePlayerSeat, players } = useGameContext();
 
-  const activePlayer = players[activePlayerSeat];
+  const activePlayer = players.find(p => p.seat === activePlayerSeat);
   const isAIThinking = !waitingForHuman && phase !== 'game_over' && !activePlayer?.isHuman;
 
   return (

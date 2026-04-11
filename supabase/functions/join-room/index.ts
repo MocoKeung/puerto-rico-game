@@ -8,10 +8,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
 
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -21,10 +18,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const authClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') ?? '', {
+      global: { headers: { Authorization: authHeader } },
+    });
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    } = await authClient.auth.getUser();
 
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -32,6 +32,8 @@ Deno.serve(async (req: Request) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    const supabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
 
     const { room_code } = await req.json();
     if (!room_code) {
@@ -85,8 +87,9 @@ Deno.serve(async (req: Request) => {
     const playerCount = game.max_players;
     const config = STARTING_CONFIG[playerCount] ?? STARTING_CONFIG[4];
 
-    // Assign starting plantation based on seat (simplified: indigo for first seats, corn for rest)
-    const isIndigoSeat = seatOrder < Math.floor(playerCount / 2) + 1;
+    // Assign starting plantation based on seat: first half gets indigo, rest get corn
+    // 2p: seat 0=indigo, 1=corn; 3p: 0,1=indigo, 2=corn; 4p: 0,1=indigo, 2,3=corn; 5p: 0,1,2=indigo, 3,4=corn
+    const isIndigoSeat = seatOrder < Math.ceil(playerCount / 2);
     const startPlantation = isIndigoSeat ? 'indigo' : 'corn';
 
     const { data: gamePlayer, error: playerError } = await supabase
@@ -97,7 +100,11 @@ Deno.serve(async (req: Request) => {
         seat_order: seatOrder,
         is_governor: false,
         doubloons: config.startDoubloons,
+        victory_points: 0,
+        colonists: 0,
         plantations: [{ type: startPlantation, colonized: false }],
+        buildings: [],
+        goods: { corn: 0, indigo: 0, sugar: 0, tobacco: 0, coffee: 0 },
       })
       .select()
       .single();

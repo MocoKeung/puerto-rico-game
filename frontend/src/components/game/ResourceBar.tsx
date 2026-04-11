@@ -1,6 +1,6 @@
 import { Coins, Star, Users, ScrollText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import useGameEngine from '../../store/gameEngine';
+import { useGameContext } from '../../contexts/GameContext';
 import { ResourceIcon } from '../icons/ResourceIcons';
 import { RESOURCE_ORDER } from '../../data/constants';
 
@@ -10,8 +10,8 @@ interface ResourceBarProps {
 
 export default function ResourceBar({ onToggleLog }: ResourceBarProps) {
   const { t } = useTranslation();
-  const player = useGameEngine(s => s.players[0]);
-  const { vpSupply, colonistSupply, colonistShip } = useGameEngine();
+  const player = useGameContext(s => s.players[0]);
+  const { vpSupply, colonistSupply, colonistShip } = useGameContext();
 
   if (!player) return null;
 

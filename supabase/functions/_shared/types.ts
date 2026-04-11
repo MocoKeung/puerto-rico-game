@@ -5,6 +5,7 @@ export type Role =
   | 'mayor'
   | 'builder'
   | 'craftsman'
+  | 'trader'
   | 'captain'
   | 'prospector';
 
@@ -135,7 +136,7 @@ export interface DbGameState {
   current_player_seat: number;
   governor_seat: number;
   roles_available: RoleAvailable[];
-  roles_selected: Record<string, Role>; // seat_order -> role
+  roles_selected: Record<string, Role>; // pick_index -> role (0, 1, 2, ...)
   ships: Ship[];
   trading_house: Resource[];
   plantation_supply: Plantation[];

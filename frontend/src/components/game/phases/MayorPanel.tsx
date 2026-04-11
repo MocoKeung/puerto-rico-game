@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Crown, Leaf, Building2, CheckCircle, Users } from 'lucide-react';
-import useGameEngine from '../../../store/gameEngine';
+import { useGameContext } from '../../../contexts/GameContext';
+import type { PlayerState } from '../../../store/gameEngine';
 import { ResourceIcon } from '../../icons/ResourceIcons';
 import { RESOURCE_COLORS } from '../../../data/constants';
 
-function totalColonists(player: ReturnType<typeof useGameEngine.getState>['players'][0]) {
+function totalColonists(player: PlayerState) {
   const onPlantations = player.plantations.filter(p => p.colonist).length;
   const onBuildings = player.buildings.reduce((s, b) => s + b.colonists, 0);
   return player.colonists + onPlantations + onBuildings;
@@ -33,7 +34,7 @@ function ColonistToken({ size = 28, faded = false }: { size?: number; faded?: bo
 }
 
 export default function MayorPanel() {
-  const { players, colonistSupply, mayorAssignColonists, mayorConfirm, waitingForHuman } = useGameEngine();
+  const { players, colonistSupply, mayorAssignColonists, mayorConfirm, waitingForHuman } = useGameContext();
   const player = players[0];
 
   const [plantations, setPlantations] = useState<boolean[]>([]);
@@ -177,7 +178,7 @@ export default function MayorPanel() {
                   key={i}
                   onClick={() => togglePlantation(i)}
                   disabled={!hasColonist && pool <= 0}
-                  className="rounded-xl flex flex-col items-center gap-1.5 py-2 px-1 transition-all duration-150 hover:scale-[1.05] active:scale-[0.97] disabled:cursor-not-allowed"
+                  className="rounded-xl flex flex-col items-center gap-1 py-2 px-1 transition-all duration-150 hover:scale-[1.05] active:scale-[0.97] disabled:cursor-not-allowed"
                   style={{
                     background: hasColonist ? `${color}28` : canPlace ? `${color}10` : `${color}07`,
                     border: hasColonist
@@ -187,6 +188,7 @@ export default function MayorPanel() {
                   title={hasColonist ? 'Click to recall colonist' : canPlace ? 'Click to place colonist' : 'No colonists left'}
                 >
                   <ResourceIcon type={tile.type} size={24} />
+                  <span className="font-cinzel text-[9px] capitalize" style={{ color }}>{tile.type}</span>
                   {/* Colonist slot */}
                   {hasColonist ? (
                     <ColonistToken size={20} />
