@@ -231,12 +231,12 @@ Deno.serve(async (req: Request) => {
             if (totalProduced > 0) {
               batchPlayerUpdates.push({
                 id: p.id,
-                updates: { goods: goods as Goods },
+                updates: { goods: goods as unknown as Goods },
               });
             }
           }
 
-          supply.goods = supplyGoods as Goods;
+          supply.goods = supplyGoods as unknown as Goods;
           updatedState.supply = supply as DbGameState['supply'];
 
           // Craftsman privilege: picker gets 1 bonus good of a type they produced
@@ -451,7 +451,7 @@ Deno.serve(async (req: Request) => {
 
         goods[resource] -= 1;
         updatedPlayer.doubloons = player.doubloons + price + traderBonus;
-        updatedPlayer.goods = goods as Goods;
+        updatedPlayer.goods = goods as unknown as Goods;
         updatedState.trading_house = [...tradingHouse, resource] as DbGameState['trading_house'];
         updatedState = {
           ...updatedState,
@@ -515,7 +515,7 @@ Deno.serve(async (req: Request) => {
         const isCaptain = currentRole === 'captain' && currentRolePickerSeat === player.seat_order;
         const captainBonus = isCaptain ? 1 : 0;
 
-        updatedPlayer.goods = goods as Goods;
+        updatedPlayer.goods = goods as unknown as Goods;
         updatedPlayer.victory_points = player.victory_points + toShip + captainBonus;
         updatedState.ships = ships as DbGameState['ships'];
 
@@ -548,8 +548,8 @@ Deno.serve(async (req: Request) => {
           if (supplyGoods[bonusResource] > 0) {
             goods[bonusResource] += 1;
             supplyGoods[bonusResource] -= 1;
-            updatedPlayer.goods = goods as Goods;
-            supply.goods = supplyGoods as Goods;
+            updatedPlayer.goods = goods as unknown as Goods;
+            supply.goods = supplyGoods as unknown as Goods;
             updatedState.supply = supply as DbGameState['supply'];
           }
         }
@@ -754,16 +754,17 @@ function advanceToNextRoleSelection(
       }
 
       // Return discarded goods to supply
+      const supplyGoodsRec = currentSupply.goods as unknown as Record<string, number>;
       for (const type of Object.keys(totalDiscarded)) {
         if (totalDiscarded[type] > 0) {
-          currentSupply.goods[type] = (currentSupply.goods[type] ?? 0) + totalDiscarded[type];
+          supplyGoodsRec[type] = (supplyGoodsRec[type] ?? 0) + totalDiscarded[type];
         }
       }
 
       // Queue player update if goods changed
       const changed = Object.keys(goods).some(k => goods[k] !== newGoods[k]);
       if (changed) {
-        mergeBatchUpdate(batchPlayerUpdates, p.id, { goods: newGoods as Goods });
+        mergeBatchUpdate(batchPlayerUpdates, p.id, { goods: newGoods as unknown as Goods });
       }
     }
   }
@@ -820,7 +821,7 @@ function advanceToNextRoleSelection(
     // Refill plantation display
     const visibleCount = playerCount + 1;
     const { drawn, remaining } = drawPlantations(
-      state.plantation_supply as string[],
+      state.plantation_supply,
       visibleCount,
     );
 
