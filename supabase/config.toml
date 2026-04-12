@@ -59,5 +59,20 @@ enable_confirmations = false
 enabled = true
 policy = "oneshot"
 
+# Disable gateway JWT verification — each function verifies the caller's JWT
+# itself via supabase.auth.getUser(), which hits the Auth API directly and is
+# not affected by signing-key mismatches at the functions gateway layer.
+[functions.create-room]
+verify_jwt = false
+
+[functions.join-room]
+verify_jwt = false
+
+[functions.start-game]
+verify_jwt = false
+
+[functions.game-action]
+verify_jwt = false
+
 [analytics]
 enabled = false
