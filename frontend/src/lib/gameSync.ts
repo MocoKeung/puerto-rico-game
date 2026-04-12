@@ -47,8 +47,8 @@ export function subscribeToGame(
       },
     )
     .subscribe((status) => {
-      if (status === 'CHANNEL_ERROR') {
-        callbacks.onError?.(new Error('game_states channel error'));
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        callbacks.onError?.(new Error(`game_states channel ${status}`));
       }
     });
 
@@ -79,7 +79,11 @@ export function subscribeToGame(
         callbacks.onPlayerUpdate?.(payload.new as GamePlayer);
       },
     )
-    .subscribe();
+    .subscribe((status) => {
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        callbacks.onError?.(new Error(`game_players channel ${status}`));
+      }
+    });
 
   // 3. Subscribe to game status changes (for start/end notifications)
   const gameChannel = supabase
@@ -96,7 +100,11 @@ export function subscribeToGame(
         callbacks.onGameUpdate?.(payload.new as Game);
       },
     )
-    .subscribe();
+    .subscribe((status) => {
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        callbacks.onError?.(new Error(`games channel ${status}`));
+      }
+    });
 
   channels.push(stateChannel, playersChannel, gameChannel);
 

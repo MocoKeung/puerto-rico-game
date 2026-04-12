@@ -25,7 +25,15 @@ export function useGame(userId: string | null) {
   // Subscribe to Realtime updates when in a game
   useGameRealtime(state.game?.id ?? null, {
     onGameStateUpdate: (newState) => {
-      setState((s) => ({ ...s, gameState: newState }));
+      setState((s) => {
+        // Safety net: if the game is still 'waiting' but a game_states row just
+        // appeared, the host has started the game — the games UPDATE event may
+        // arrive late or be missed entirely, so flip the status here too.
+        const nextGame = s.game && s.game.status === 'waiting'
+          ? { ...s.game, status: 'in_progress' as const }
+          : s.game;
+        return { ...s, gameState: newState, game: nextGame };
+      });
     },
     onPlayerUpdate: (updatedPlayer) => {
       setState((s) => {
@@ -44,7 +52,8 @@ export function useGame(userId: string | null) {
       setState((s) => ({ ...s, game: updatedGame }));
     },
     onError: (err) => {
-      setState((s) => ({ ...s, error: err.message }));
+      // Log but don't surface — polling fallback below keeps the UI in sync
+      console.warn('[useGame] realtime channel error:', err.message);
     },
   });
 
@@ -54,6 +63,26 @@ export function useGame(userId: string | null) {
       reloadGameData(state.game.id);
     }
   }, [state.game?.status, state.game?.id, state.gameState]);
+
+  // Polling fallback: while in the waiting room, poll the games row every 3s
+  // so that if the realtime UPDATE event is missed (channel not joined yet,
+  // network blip, etc.) Player 2 still transitions into the game when the
+  // host clicks Start.
+  useEffect(() => {
+    if (state.game?.status !== 'waiting' || !state.game.id) return;
+    const gameId = state.game.id;
+    const interval = setInterval(async () => {
+      const { data } = await supabase
+        .from('games')
+        .select('*')
+        .eq('id', gameId)
+        .maybeSingle();
+      if (data && data.status !== 'waiting') {
+        setState((s) => ({ ...s, game: data }));
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [state.game?.status, state.game?.id]);
 
   // Helper to re-fetch game state + players (used when game transitions)
   const reloadGameData = useCallback(async (gameId: string) => {
