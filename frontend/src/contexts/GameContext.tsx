@@ -101,6 +101,10 @@ export function MultiplayerGameProvider({
     performAction('produce', { bonus_resource: resource });
   }, [performAction]);
 
+  const craftsmanSkipBonus = useCallback((_seat: number) => {
+    performAction('produce', {});
+  }, [performAction]);
+
   // Flow actions (no-ops in multiplayer - server handles flow)
   const advanceToNextPlayer = useCallback(() => {}, []);
   const endRolePhase = useCallback(() => {}, []);
@@ -156,6 +160,7 @@ export function MultiplayerGameProvider({
     traderSellGood,
     traderPass,
     craftsmanBonusGood,
+    craftsmanSkipBonus,
     advanceToNextPlayer,
     endRolePhase,
     addLog,
@@ -167,7 +172,7 @@ export function MultiplayerGameProvider({
     engineState, initGame, selectRole, settlerTakePlantation,
     builderBuyBuilding, builderPass, mayorAssignColonists, mayorConfirm,
     captainShipGoods, captainUseWharf, captainPass,
-    traderSellGood, traderPass, craftsmanBonusGood,
+    traderSellGood, traderPass, craftsmanBonusGood, craftsmanSkipBonus,
     advanceToNextPlayer, endRolePhase, addLog,
     getHumanPlayer, canAffordBuilding, getAvailableShipsForResource, isHumanTurn,
   ]);

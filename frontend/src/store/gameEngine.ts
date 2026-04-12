@@ -198,6 +198,7 @@ export interface GameEngineActions {
   traderSellGood: (seat: number, resource: ResourceType) => void;
   traderPass: (seat: number) => void;
   craftsmanBonusGood: (seat: number, resource: ResourceType) => void;
+  craftsmanSkipBonus: (seat: number) => void;
 
   // Flow
   advanceToNextPlayer: () => void;
@@ -700,6 +701,10 @@ const useGameEngine = create<GameEngineState & GameEngineActions>((set, get) => 
 
     set({ players: newPlayers, goodsSupply: newGoodsSupply });
     get().addLog(`${p.name} took bonus ${resource} (craftsman privilege)`, seat);
+    get().endRolePhase();
+  },
+
+  craftsmanSkipBonus: (_seat) => {
     get().endRolePhase();
   },
 

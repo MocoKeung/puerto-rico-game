@@ -5,7 +5,7 @@ import { RESOURCE_ORDER, RESOURCE_LABELS } from '../../../data/constants';
 
 export default function CraftsmanPanel() {
   const { t } = useTranslation();
-  const { waitingForHuman, craftsmanBonusGood, players, goodsSupply } = useGameContext();
+  const { waitingForHuman, craftsmanBonusGood, craftsmanSkipBonus, players, goodsSupply } = useGameContext();
   const humanPlayer = players[0];
 
   // Craftsman auto-produces. If waitingForHuman, it means we need bonus good choice.
@@ -70,9 +70,18 @@ export default function CraftsmanPanel() {
       </div>
 
       {producibleTypes.length === 0 && (
-        <p className="text-center text-amber-500 italic py-4">
-          {t('craftsman.noneAvailable')}
-        </p>
+        <div className="text-center py-4">
+          <p className="text-amber-500 italic mb-4">
+            {t('craftsman.noneAvailable')}
+          </p>
+          <button
+            onClick={() => craftsmanSkipBonus(0)}
+            className="px-6 py-2.5 rounded-xl font-cinzel font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.97]"
+            style={{ background: 'linear-gradient(135deg, #b8760a, #f0a830)', color: 'white' }}
+          >
+            {t('common.skip', { defaultValue: 'Skip' })}
+          </button>
+        </div>
       )}
     </div>
   );

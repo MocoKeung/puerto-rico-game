@@ -239,9 +239,33 @@ Deno.serve(async (req: Request) => {
           supply.goods = supplyGoods as unknown as Goods;
           updatedState.supply = supply as DbGameState['supply'];
 
-          // Craftsman privilege: picker gets 1 bonus good of a type they produced
-          // For now, auto-advance (bonus good selection will be handled by a follow-up action)
-          updatedState.current_player_seat = player.seat_order;
+          // Craftsman privilege: picker gets 1 bonus good of a type they can produce
+          // Check if the picker can actually produce anything for the bonus
+          // (use post-production supply, and the picker's post-production state)
+          const canPickerBonus = (() => {
+            // Corn: colonized corn plantation + supply
+            if (player.plantations.some((pl: PlantationSlot) => pl.type === 'corn' && pl.colonized) && supplyGoods.corn > 0) return true;
+            // Other resources
+            for (const res of ['indigo', 'sugar', 'tobacco', 'coffee']) {
+              const hasPlantation = player.plantations.some((pl: PlantationSlot) => pl.type === res && pl.colonized);
+              const hasBuilding = player.buildings.some((b: BuildingSlot) => getBuildingProductionType(b.type) === res && b.colonists > 0);
+              if (hasPlantation && hasBuilding && supplyGoods[res] > 0) return true;
+            }
+            return false;
+          })();
+
+          if (canPickerBonus) {
+            // Wait for picker to choose bonus good via 'produce' action
+            updatedState.current_player_seat = player.seat_order;
+          } else {
+            // Picker can't produce any bonus — auto-skip to next role selection
+            updatedState = {
+              ...updatedState,
+              ...advanceToNextRoleSelection(
+                state, playerCount, pickIndex + 1, players, batchPlayerUpdates, updatedState,
+              ),
+            };
+          }
         } else if (role === 'prospector') {
           // Prospector: picker gets 1 doubloon, then immediately advance
           updatedPlayer.doubloons = player.doubloons + roleEntry.doubloons_bonus + 1;
