@@ -38,11 +38,24 @@ export async function callEdgeFunction<T = unknown>(
   });
 
   if (error) {
-    // Try to parse error details from the response
-    const msg = typeof error === 'object' && 'message' in error
-      ? error.message
-      : `Edge function ${functionName} failed`;
-    throw new Error(msg);
+    // Supabase FunctionsHttpError.context is a Response — read body for real detail
+    let detail = '';
+    const context = (error as { context?: unknown }).context;
+    if (context instanceof Response) {
+      try {
+        const text = await context.clone().text();
+        try {
+          const parsed = JSON.parse(text);
+          detail = parsed.error ?? parsed.message ?? text;
+        } catch {
+          detail = text;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    const base = error instanceof Error ? error.message : `Edge function ${functionName} failed`;
+    throw new Error(detail ? `${base}: ${detail}` : base);
   }
 
   return data as T;
